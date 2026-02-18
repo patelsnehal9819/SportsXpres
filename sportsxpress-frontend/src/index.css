@@ -1,0 +1,163 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Roboto', 'Arial', sans-serif;
+  background-color: #f1f3f6;
+}
+
+a {
+  text-decoration: none;
+}
+
+.currency {
+  font-family: 'Arial', sans-serif;
+}
+/* Add to src/index.css */
+
+/* Mobile App Styles */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  background-color: #f5f5f5;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+}
+
+/* Hide scrollbar but keep functionality */
+::-webkit-scrollbar {
+  width: 0;
+  background: transparent;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* App-like container */
+#root {
+  max-width: 100%;
+  margin: 0 auto;
+  background-color: #f5f5f5;
+}
+
+/* Card styles for app-like feel */
+.MuiCard-root {
+  border-radius: 12px !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important;
+  transition: transform 0.2s ease !important;
+}
+
+.MuiCard-root:active {
+  transform: scale(0.98);
+}
+
+/* Button styles */
+.MuiButton-contained {
+  border-radius: 8px !important;
+  text-transform: none !important;
+  font-weight: 600 !important;
+  box-shadow: none !important;
+}
+
+.MuiButton-contained:active {
+  transform: scale(0.96);
+}
+
+/* Bottom navigation active color */
+.Mui-selected {
+  color: #fb641b !important;
+}
+
+/* Smooth transitions */
+* {
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  background-color: #f5f5f5;
+}
+
+/* Hide scrollbar but keep functionality */
+::-webkit-scrollbar {
+  width: 0;
+  background: transparent;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* App-like container */
+#root {
+  max-width: 100%;
+  margin: 0 auto;
+  background-color: #f5f5f5;
+}
+
+/* Card styles for app-like feel */
+.MuiCard-root {
+  border-radius: 12px !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important;
+  transition: transform 0.2s ease !important;
+}
+
+.MuiCard-root:active {
+  transform: scale(0.98);
+}
+
+/* Button styles */
+.MuiButton-contained {
+  border-radius: 8px !important;
+  text-transform: none !important;
+  font-weight: 600 !important;
+  box-shadow: none !important;
+}
+
+.MuiButton-contained:active {
+  transform: scale(0.96);
+}
+
+/* Bottom navigation active color */
+.Mui-selected {
+  color: #fb641b !important;
+}
+
+/* Smooth transitions */
+* {
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+/* App bar shadow */
+.MuiAppBar-root {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
+}
+
+/* Product card image */
+.MuiCardMedia-root {
+  background-color: #f5f5f5;
+}
+
+/* Loading animation */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
