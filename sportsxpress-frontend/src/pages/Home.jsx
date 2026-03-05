@@ -17,10 +17,42 @@ const Home = () => {
   const { user, getWelcomeMessage } = useAuth();
 
   const mostViewedProducts = [
-    { id: 1, name: 'Nike Air Zoom', brand: 'Nike', price: 5999, rating: 4.5, image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', views: 2345 },
-    { id: 2, name: 'SG Cricket Bat', brand: 'SG', price: 4499, rating: 4.7, image: 'https://images.unsplash.com/photo-1624526267942-ab0ff8a3e972?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', views: 1890 },
-    { id: 3, name: 'Yonex Badminton', brand: 'Yonex', price: 3299, rating: 4.6, image: 'https://images.unsplash.com/photo-1626224583764-f87db24ac4e2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', views: 1567 },
-    { id: 4, name: 'Adidas Football', brand: 'Adidas', price: 2799, rating: 4.4, image: 'https://images.unsplash.com/photo-1614632537190-5a2d9b63c2c0?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', views: 1432 },
+    { 
+      _id: '69a921d1056cc3da1378a6cf', // SG Test Cricket Bat
+      name: 'SG Test Cricket Bat', 
+      brand: 'SG', 
+      price: 5499, 
+      rating: 4.5, 
+      image: 'https://images.unsplash.com/photo-1624526267942-ab0ff8a3e972?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', 
+      views: 2345 
+    },
+    { 
+      _id: '69a921d1056cc3da1378a6d9', // Nike Mercurial Football Shoes
+      name: 'Nike Mercurial Football Shoes', 
+      brand: 'Nike', 
+      price: 12999, 
+      rating: 4.9, 
+      image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', 
+      views: 1890 
+    },
+    { 
+      _id: '69a921d1056cc3da1378a6e0', // Yonex Astrox 100 ZZ
+      name: 'Yonex Astrox 100 ZZ', 
+      brand: 'Yonex', 
+      price: 18999, 
+      rating: 4.9, 
+      image: 'https://images.unsplash.com/photo-1626224583764-f87db24ac4e2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', 
+      views: 1567 
+    },
+    { 
+      _id: '69a921d1056cc3da1378a6e5', // Spalding NBA Basketball
+      name: 'Spalding NBA Basketball', 
+      brand: 'Spalding', 
+      price: 3999, 
+      rating: 4.9, 
+      image: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', 
+      views: 1432 
+    },
   ];
 
   const sportsCategories = [
@@ -127,16 +159,16 @@ const Home = () => {
         ))}
       </Grid>
 
-      {/* Most Viewed Products */}
+      {/* Most Viewed Products - FIXED with _id instead of id */}
       <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
         🔥 Most Viewed
       </Typography>
       <Grid container spacing={2} sx={{ mb: 4 }}>
         {mostViewedProducts.map((product) => (
-          <Grid item xs={6} key={product.id}>
+          <Grid item xs={6} key={product._id}>
             <Card 
               component={Link}
-              to={`/products/${product.id}`}
+              to={`/products/${product._id}`}  // ← CHANGED from product.id to product._id
               sx={{ 
                 textDecoration: 'none',
                 height: '100%',

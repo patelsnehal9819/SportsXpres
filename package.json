@@ -1,0 +1,36 @@
+{
+  "name": "sportsxpress",
+  "version": "1.0.0",
+  "description": "Smart Sports Shopping Made Simple - Full Stack MERN Application",
+  "main": "index.js",
+  "scripts": {
+    "start": "concurrently \"npm run backend\" \"npm run frontend\"",
+    "backend": "cd sportsxpress-backend && npm run dev",
+    "frontend": "cd sportsxpress-frontend && npm start",
+    "install-all": "npm install && cd sportsxpress-backend && npm install && cd ../sportsxpress-frontend && npm install",
+    "build": "cd sportsxpress-frontend && npm run build",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/patelsnehal9819/SportsXpres.git"
+  },
+  "keywords": [
+    "sports",
+    "ecommerce",
+    "mern",
+    "react",
+    "node",
+    "mongodb"
+  ],
+  "author": "Your Name",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/patelsnehal9819/SportsXpres/issues"
+  },
+  "homepage": "https://github.com/patelsnehal9819/SportsXpres#readme",
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}

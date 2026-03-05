@@ -1,22 +1,11 @@
 import axios from 'axios';
 
+// Use the Codespaces URL, NOT localhost
 const API = axios.create({
-  baseURL: 'http://localhost:5000/api',  // Your backend URL
+  baseURL: 'https://solid-fishstick-7v74445764vj3pjgx-5000.app.github.dev/api',
   headers: {
     'Content-Type': 'application/json',
   },
 });
-
-// Add token to requests
-API.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
 
 export default API;

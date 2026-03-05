@@ -1,225 +1,139 @@
 const User = require('../models/User');
-const generateToken = require('../utils/generateToken');
+const jwt = require('jsonwebtoken');
 
+// Generate JWT
+const generateToken = (id) => {
+  return jwt.sign({ id }, process.env.JWT_SECRET, {
+    expiresIn: '30d',
+  });
+};
+
+// @desc    Register user
+// @route   POST /api/auth/register
 const registerUser = async (req, res) => {
   try {
-    const { name, email, phone, password } = req.body;
+    console.log('📥 REGISTER REQUEST RECEIVED:', req.body);
+    
+    const { name, email, phone, password, height, weight, age, favoriteSport } = req.body;
 
-    const userExists = await User.findOne({ $or: [{ email }, { phone }] });
-
-    if (userExists) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'User already exists' 
+    // Validate required fields
+    if (!name || !email || !phone || !password) {
+      console.log('❌ Missing required fields');
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide all required fields'
       });
     }
 
+    // Check if user exists
+    const userExists = await User.findOne({ 
+      $or: [{ email }, { phone }] 
+    });
+    
+    console.log('🔍 User exists?', userExists ? 'YES' : 'NO');
+
+    if (userExists) {
+      console.log('❌ User already exists');
+      return res.status(400).json({
+        success: false,
+        message: 'User already exists with this email or phone. Please login.'
+      });
+    }
+
+    // Create user
+    console.log('📝 Creating user...');
     const user = await User.create({
       name,
       email,
       phone,
       password,
+      height,
+      weight,
+      age,
+      favoriteSport,
     });
 
-    if (user) {
-      res.status(201).json({
-        success: true,
-        data: {
-          _id: user._id,
-          name: user.name,
-          email: user.email,
-          phone: user.phone,
-          isAdmin: user.isAdmin,
-          token: generateToken(user._id),
-        },
+    console.log('✅ User created successfully:', user._id);
+
+    res.status(201).json({
+      success: true,
+      message: 'Registration successful! Please login.',
+      userId: user._id
+    });
+
+  } catch (error) {
+    console.log('❌ SERVER ERROR:', error);
+    
+    // Handle duplicate key error
+    if (error.code === 11000) {
+      const field = Object.keys(error.keyPattern)[0];
+      return res.status(400).json({
+        success: false,
+        message: `${field} already exists. Please use different ${field}.`
       });
     }
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
   }
 };
 
+// @desc    Login user
+// @route   POST /api/auth/login
 const loginUser = async (req, res) => {
   try {
+    console.log('📥 LOGIN REQUEST RECEIVED:', req.body.email);
+    
     const { email, password } = req.body;
 
+    // Check for user
     const user = await User.findOne({ email }).select('+password');
 
-    if (user && (await user.matchPassword(password))) {
-      res.json({
-        success: true,
-        data: {
-          _id: user._id,
-          name: user.name,
-          email: user.email,
-          phone: user.phone,
-          isAdmin: user.isAdmin,
-          token: generateToken(user._id),
-        },
-      });
-    } else {
-      res.status(401).json({ 
-        success: false, 
-        message: 'Invalid email or password' 
-      });
-    }
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-};
-
-const sendOTP = async (req, res) => {
-  try {
-    const { phone, email } = req.body;
-    
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    const otpExpire = Date.now() + 10 * 60 * 1000;
-
-    let user;
-    if (phone) {
-      user = await User.findOne({ phone });
-      if (!user) {
-        user = new User({ phone });
-      }
-    } else if (email) {
-      user = await User.findOne({ email });
-      if (!user) {
-        user = new User({ email });
-      }
-    }
-
-    user.otp = otp;
-    user.otpExpire = otpExpire;
-    await user.save();
-
-    console.log(`OTP for ${phone || email}: ${otp}`);
-
-    res.json({ 
-      success: true, 
-      message: 'OTP sent successfully' 
-    });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-};
-
-const verifyOTP = async (req, res) => {
-  try {
-    const { phone, email, otp } = req.body;
-
-    const user = await User.findOne({
-      $or: [{ phone }, { email }],
-      otp,
-      otpExpire: { $gt: Date.now() },
-    });
-
     if (!user) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Invalid or expired OTP' 
+      console.log('❌ User not found');
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid email or password'
       });
     }
 
-    user.otp = undefined;
-    user.otpExpire = undefined;
-    await user.save();
+    // Check password
+    const isPasswordMatch = await user.matchPassword(password);
+    console.log('🔑 Password match?', isPasswordMatch ? 'YES' : 'NO');
+
+    if (!isPasswordMatch) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid email or password'
+      });
+    }
+
+    console.log('✅ Login successful for:', user.email);
 
     res.json({
       success: true,
-      data: {
+      token: generateToken(user._id),
+      user: {
         _id: user._id,
         name: user.name,
         email: user.email,
         phone: user.phone,
-        token: generateToken(user._id),
+        role: user.role || 'user',
       },
     });
+
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-};
-
-const getProfile = async (req, res) => {
-  try {
-    const user = await User.findById(req.user._id);
-
-    if (user) {
-      res.json({
-        success: true,
-        data: {
-          _id: user._id,
-          name: user.name,
-          email: user.email,
-          phone: user.phone,
-          addresses: user.addresses,
-          height: user.height,
-          weight: user.weight,
-          age: user.age,
-          favoriteSport: user.favoriteSport,
-          isAdmin: user.isAdmin,
-        },
-      });
-    } else {
-      res.status(404).json({ 
-        success: false, 
-        message: 'User not found' 
-      });
-    }
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-};
-
-const updateProfile = async (req, res) => {
-  try {
-    const user = await User.findById(req.user._id);
-
-    if (user) {
-      user.name = req.body.name || user.name;
-      user.email = req.body.email || user.email;
-      user.phone = req.body.phone || user.phone;
-      user.height = req.body.height || user.height;
-      user.weight = req.body.weight || user.weight;
-      user.age = req.body.age || user.age;
-      user.favoriteSport = req.body.favoriteSport || user.favoriteSport;
-
-      if (req.body.password) {
-        user.password = req.body.password;
-      }
-
-      const updatedUser = await user.save();
-
-      res.json({
-        success: true,
-        data: {
-          _id: updatedUser._id,
-          name: updatedUser.name,
-          email: updatedUser.email,
-          phone: updatedUser.phone,
-          addresses: updatedUser.addresses,
-          height: updatedUser.height,
-          weight: updatedUser.weight,
-          age: updatedUser.age,
-          favoriteSport: updatedUser.favoriteSport,
-          token: generateToken(updatedUser._id),
-        },
-      });
-    } else {
-      res.status(404).json({ 
-        success: false, 
-        message: 'User not found' 
-      });
-    }
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    console.log('❌ LOGIN ERROR:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
   }
 };
 
 module.exports = {
   registerUser,
   loginUser,
-  sendOTP,
-  verifyOTP,
-  getProfile,
-  updateProfile,
 };

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Paper,
@@ -40,6 +40,7 @@ import {
   School,
   MilitaryTech,
   FlashOn,
+  Save,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
@@ -54,6 +55,9 @@ const StarterKit = () => {
   const [skillLevel, setSkillLevel] = useState('beginner');
   const [budget, setBudget] = useState(5000);
   const [customizedKit, setCustomizedKit] = useState([]);
+  const [saving, setSaving] = useState(false);
+
+  const BASE_URL = 'https://solid-fishstick-7v74445764vj3pjgx-5000.app.github.dev';
 
   const sportImages = {
     cricket: 'https://images.unsplash.com/photo-1531415074968-036ba1b575da?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
@@ -187,6 +191,70 @@ const StarterKit = () => {
   const steps = ['Sport', 'Level', 'Budget', 'Choose', 'Review'];
   const currentKits = selectedSport ? getKitsForSport()[skillLevel] : [];
 
+  // ========== NEW: Save kit to backend ==========
+  const saveKitToBackend = async () => {
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (!user) {
+      toast.error('Please login to save your kit');
+      return false;
+    }
+
+    if (customizedKit.length === 0) {
+      toast.error('No kit to save');
+      return false;
+    }
+
+    setSaving(true);
+    
+    const kitTotal = customizedKit.reduce((sum, item) => sum + item.price, 0);
+    const sportName = sports.find(s => s.id === selectedSport)?.name || '';
+    
+    const kitData = {
+      user: user._id,
+      sport: selectedSport,
+      skillLevel: skillLevel,
+      budget: budget,
+      selectedKit: {
+        name: `${sportName} ${skillLevel} Kit`,
+        price: kitTotal,
+        items: customizedKit.map(item => ({
+          name: item.name,
+          price: item.price,
+          image: item.image
+        }))
+      },
+      totalPrice: kitTotal
+    };
+
+    try {
+      const response = await fetch(`${BASE_URL}/api/starter-kit/save`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(kitData)
+      });
+      
+      const data = await response.json();
+      if (data.success) {
+        console.log('✅ Kit saved to database:', data.kit);
+        toast.success('Kit saved to your account!');
+        return true;
+      }
+    } catch (error) {
+      console.error('Error saving kit:', error);
+      toast.error('Failed to save kit');
+    } finally {
+      setSaving(false);
+    }
+    return false;
+  };
+
+  // ========== NEW: Auto-save when reaching review step ==========
+  useEffect(() => {
+    if (activeStep === 4 && customizedKit.length > 0) {
+      saveKitToBackend();
+    }
+  }, [activeStep]);
+
   const handleNext = () => {
     if (activeStep === 0 && !selectedSport) {
       toast.error('Please select a sport');
@@ -204,7 +272,8 @@ const StarterKit = () => {
     toast.success(`${kit.name} selected!`);
   };
 
-  const handleAddToCart = () => {
+  // ========== UPDATED: handleAddToCart with save ==========
+  const handleAddToCart = async () => {
     if (customizedKit.length === 0) {
       toast.error('Please select a kit first');
       return;
@@ -221,9 +290,18 @@ const StarterKit = () => {
       sport: selectedSport,
     };
 
+    // Save to backend first
+    const saved = await saveKitToBackend();
+    
+    // Add to cart
     addToCart(kitProduct);
     toast.success('Starter kit added to cart!');
     navigate('/cart');
+  };
+
+  // ========== NEW: Save button for manual save ==========
+  const handleSaveKit = async () => {
+    await saveKitToBackend();
   };
 
   return (
@@ -379,9 +457,20 @@ const StarterKit = () => {
         {/* Step 5: Review */}
         {activeStep === 4 && (
           <Box>
-            <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
-              Your Kit
-            </Typography>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+              <Typography variant="subtitle1" fontWeight="bold">
+                Your Kit
+              </Typography>
+              <Button
+                size="small"
+                startIcon={<Save />}
+                onClick={handleSaveKit}
+                disabled={saving || customizedKit.length === 0}
+                sx={{ color: '#1976d2' }}
+              >
+                {saving ? 'Saving...' : 'Save Kit'}
+              </Button>
+            </Box>
             {customizedKit.length > 0 ? (
               <>
                 <Alert severity="success" sx={{ mb: 2 }}>
@@ -455,10 +544,10 @@ const StarterKit = () => {
               variant="contained"
               onClick={handleAddToCart}
               startIcon={<ShoppingCart />}
-              disabled={customizedKit.length === 0}
+              disabled={customizedKit.length === 0 || saving}
               sx={{ bgcolor: '#fb641b', borderRadius: 2 }}
             >
-              Add to Cart
+              {saving ? 'Saving...' : 'Add to Cart'}
             </Button>
           )}
         </Box>

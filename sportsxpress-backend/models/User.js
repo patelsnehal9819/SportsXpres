@@ -4,72 +4,64 @@ const bcrypt = require('bcryptjs');
 const userSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: [true, 'Please add a name'],
+    required: true,
+    trim: true
   },
   email: {
     type: String,
-    required: [true, 'Please add an email'],
+    required: true,
     unique: true,
-    match: [
-      /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
-      'Please add a valid email',
-    ],
+    lowercase: true,
+    trim: true
   },
   phone: {
     type: String,
-    required: [true, 'Please add a phone number'],
-    unique: true,
+    required: true,
+    unique: true
   },
   password: {
     type: String,
-    required: [true, 'Please add a password'],
-    minlength: 6,
-    select: false,
+    required: true
   },
-  otp: {
+  role: {
     type: String,
-    select: false,
+    enum: ['user', 'admin'],
+    default: 'user'
   },
-  otpExpire: {
-    type: Date,
-    select: false,
-  },
-  isAdmin: {
-    type: Boolean,
-    default: false,
-  },
-  addresses: [
-    {
-      name: String,
-      street: String,
-      city: String,
-      state: String,
-      zipCode: String,
-      phone: String,
-      isDefault: { type: Boolean, default: false },
-    },
-  ],
+  addresses: [{
+    name: String,
+    street: String,
+    city: String,
+    state: String,
+    zipCode: String,
+    phone: String,
+    isDefault: { type: Boolean, default: false }
+  }],
   height: Number,
   weight: Number,
   age: Number,
   favoriteSport: String,
-  resetPasswordToken: String,
-  resetPasswordExpire: Date,
   createdAt: {
     type: Date,
-    default: Date.now,
-  },
-});
-
-userSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) {
-    next();
+    default: Date.now
   }
-  const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(this.password, salt);
 });
 
-userSchema.methods.matchPassword = async function (enteredPassword) {
+// ✅ Hash password before saving
+userSchema.pre('save', async function(next) {
+  if (!this.isModified('password')) return next();
+  
+  try {
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
+
+// ✅ COMPARE PASSWORD METHOD - This is what you're missing!
+userSchema.methods.matchPassword = async function(enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
 

@@ -3,79 +3,50 @@ const mongoose = require('mongoose');
 const productSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: [true, 'Please add a product name'],
-    trim: true,
+    required: true
   },
   brand: {
     type: String,
-    required: [true, 'Please add a brand'],
-  },
-  description: {
-    type: String,
-    required: [true, 'Please add a description'],
-  },
-  price: {
-    type: Number,
-    required: [true, 'Please add a price'],
-    min: 0,
-  },
-  originalPrice: {
-    type: Number,
-    min: 0,
-  },
-  discount: {
-    type: Number,
-    default: 0,
-    min: 0,
-    max: 100,
+    required: true
   },
   category: {
     type: String,
-    required: [true, 'Please add a category'],
-    enum: ['shoes', 'jersey', 'bat', 'ball', 'racket', 'gloves', 'pads', 'helmet', 'accessories', 'kit'],
+    required: true
   },
   sport: {
     type: String,
-    required: [true, 'Please add a sport'],
-    enum: ['cricket', 'football', 'badminton', 'basketball', 'gym', 'running', 'tennis'],
+    required: true
   },
-  sizes: [String],
-  colors: [String],
-  images: [
-    {
-      public_id: String,
-      url: String,
-    },
-  ],
-  stock: {
+  price: {
     type: Number,
-    required: [true, 'Please add stock quantity'],
-    min: 0,
-    default: 0,
+    required: true
   },
+  originalPrice: Number,
+  discount: Number,
+  description: String,
   rating: {
     type: Number,
-    min: 0,
-    max: 5,
-    default: 0,
+    default: 4.5
   },
-  numReviews: {
+  reviews: {
     type: Number,
-    default: 0,
+    default: 0
   },
+  stock: {
+    type: Number,
+    default: 100
+  },
+  image: String,
+  sizes: [String],
+  colors: [String],
   views: {
     type: Number,
-    default: 0,
+    default: 0
   },
-  isKit: {
-    type: Boolean,
-    default: false,
-  },
-  kitItems: [String],
   createdAt: {
     type: Date,
-    default: Date.now,
-  },
+    default: Date.now
+  }
 });
 
 module.exports = mongoose.model('Product', productSchema);

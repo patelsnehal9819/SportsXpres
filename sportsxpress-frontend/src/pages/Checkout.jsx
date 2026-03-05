@@ -24,7 +24,6 @@ import {
   LocalShipping,
   Payment,
   LocationOn,
-  CheckCircle,
   ArrowBack,
   ShoppingBag,
   Person,
@@ -41,6 +40,10 @@ const Checkout = () => {
   const [activeStep, setActiveStep] = useState(0);
   const [loading, setLoading] = useState(false);
   
+  const user = JSON.parse(localStorage.getItem('user'));
+  const userId = user?._id;
+  const BASE_URL = 'https://solid-fishstick-7v74445764vj3pjgx-5000.app.github.dev';
+
   // Address state
   const [address, setAddress] = useState({
     fullName: '',
@@ -110,34 +113,73 @@ const Checkout = () => {
     setActiveStep(activeStep - 1);
   };
 
-  const handlePlaceOrder = () => {
+  const handlePlaceOrder = async () => {
+    if (!userId) {
+      toast.error('Please login to place order');
+      navigate('/login');
+      return;
+    }
+
     setLoading(true);
     
-    setTimeout(() => {
-      const orderId = 'ORD' + Math.floor(Math.random() * 1000000);
-      
-      const order = {
-        id: orderId,
-        date: new Date().toISOString(),
-        items: cartItems,
-        total: total,
+    try {
+      const orderData = {
+        user: userId,
+        items: cartItems.map(item => ({
+          productId: item._id,
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity,
+          image: item.image,
+          brand: item.brand
+        })),
         subtotal: subtotal,
         shipping: shipping,
         tax: tax,
-        address: address,
+        total: total,
+        shippingAddress: {
+          fullName: address.fullName,
+          street: address.street,
+          city: address.city,
+          state: address.state,
+          zipCode: address.zipCode,
+          phone: address.phone
+        },
         paymentMethod: paymentMethod,
-        status: 'confirmed',
+        status: 'confirmed'
       };
+
+      console.log('📦 Placing order:', orderData);
+
+      const response = await fetch(`${BASE_URL}/api/orders`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(orderData)
+      });
+
+      const data = await response.json();
+      console.log('✅ Order response:', data);
       
-      const orders = JSON.parse(localStorage.getItem('orders') || '[]');
-      orders.push(order);
-      localStorage.setItem('orders', JSON.stringify(orders));
-      
-      clearCart();
+      if (data.success) {
+        // Clear cart from MongoDB
+        await fetch(`${BASE_URL}/api/cart/clear/${userId}`, {
+          method: 'DELETE'
+        });
+        
+        clearCart(); // Clear local cart
+        toast.success('Order placed successfully!');
+        
+        // Navigate to order confirmation with the correct order ID
+        navigate(`/order-confirmation/${data.order.orderId || data.order._id}`);
+      } else {
+        toast.error(data.message || 'Failed to place order');
+      }
+    } catch (error) {
+      console.error('❌ Order error:', error);
+      toast.error('Failed to place order');
+    } finally {
       setLoading(false);
-      toast.success('Order placed successfully!');
-      navigate(`/order-confirmation/${orderId}`);
-    }, 2000);
+    }
   };
 
   if (cartItems.length === 0) {
