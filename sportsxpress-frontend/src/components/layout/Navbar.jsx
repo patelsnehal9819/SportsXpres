@@ -35,6 +35,7 @@ import {
   Grass as ShoesIcon,
   ExpandMore,
   ExpandLess,
+  Receipt as OrdersIcon,  // ← ADD THIS IMPORT
 } from '@mui/icons-material';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
@@ -141,6 +142,19 @@ const Navbar = () => {
           <Button color="inherit" component={Link} to="/sports-shoes" startIcon={<ShoesIcon />} sx={{ mx: 0.5, fontWeight: 500 }}>Shoes</Button>
           <Button color="inherit" component={Link} to="/medical-kits" startIcon={<MedicalIcon />} sx={{ mx: 0.5, fontWeight: 500 }}>Medical</Button>
 
+          {/* SEPARATE ORDERS BUTTON - VISIBLE WHEN LOGGED IN */}
+          {user && (
+            <Button 
+              color="inherit" 
+              component={Link} 
+              to="/orders" 
+              startIcon={<OrdersIcon />} 
+              sx={{ mx: 0.5, fontWeight: 500 }}
+            >
+              Orders
+            </Button>
+          )}
+
           <IconButton color="inherit" component={Link} to="/cart" sx={{ ml: 1 }}>
             <Badge badgeContent={getCartCount()} color="error"><CartIcon /></Badge>
           </IconButton>
@@ -153,7 +167,7 @@ const Navbar = () => {
             + Add Product
           </Button>
 
-          {/* UPDATED: User section with name display */}
+          {/* User section */}
           {user ? (
             <>
               <Box sx={{ display: 'flex', alignItems: 'center', ml: 1 }}>
@@ -168,7 +182,8 @@ const Navbar = () => {
               </Box>
               <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
                 <MenuItem component={Link} to="/profile" onClick={handleMenuClose}><PersonIcon sx={{ mr: 1 }} /> Profile</MenuItem>
-                <MenuItem component={Link} to="/orders" onClick={handleMenuClose}>My Orders</MenuItem>
+                {/* Orders option in dropdown as well (optional) */}
+                <MenuItem component={Link} to="/orders" onClick={handleMenuClose}><OrdersIcon sx={{ mr: 1 }} /> My Orders</MenuItem>
                 <MenuItem onClick={handleLogout}>Logout</MenuItem>
               </Menu>
             </>

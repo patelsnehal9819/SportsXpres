@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Box,
+  Container,
   Grid,
   Card,
   CardContent,
-  CardMedia,
   Typography,
   Button,
+  Box,
   Rating,
   Chip,
   TextField,
@@ -17,109 +17,125 @@ import {
   Select,
   MenuItem,
   Slider,
+  Pagination,
   Drawer,
-  Badge,
+  Stack,
   Divider,
+  FormControlLabel,
+  Checkbox,
   CircularProgress,
+  Fab,
 } from '@mui/material';
 import {
   Search,
   FilterList,
+  Close,
   ShoppingCart,
+  Clear,
+  ArrowUpward,
+  LocalShipping,
   Favorite,
   FavoriteBorder,
-  Clear,
-  Sort,
 } from '@mui/icons-material';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 import { formatINR } from '../utils/currencyFormatter';
 import toast from 'react-hot-toast';
+import '../App.css';
 
 const Products = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   const { addToCart } = useCart();
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
   
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  
   const [searchQuery, setSearchQuery] = useState('');
-  const [filterDrawerOpen, setFilterDrawerOpen] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState('');
-  const [selectedBrand, setSelectedBrand] = useState('');
-  const [priceRange, setPriceRange] = useState([0, 10000]);
+  const [selectedBrands, setSelectedBrands] = useState([]);
+  const [priceRange, setPriceRange] = useState([0, 20000]);
   const [sortBy, setSortBy] = useState('popularity');
+  const [page, setPage] = useState(1);
+  const [filterOpen, setFilterOpen] = useState(false);
+  
+  const itemsPerPage = 12;
+  const BASE_URL = 'https://solid-fishstick-7v74445764vj3pjgx-5000.app.github.dev';
 
   useEffect(() => {
-    // Get search query from URL
-    const params = new URLSearchParams(location.search);
-    const search = params.get('search');
-    if (search) {
-      setSearchQuery(search);
-    }
+    fetchProducts();
+  }, []);
 
-    // Load products
-    const allProducts = JSON.parse(localStorage.getItem('sportsxpress_products') || '[]');
-    setProducts(allProducts);
-    setFilteredProducts(allProducts);
-    setLoading(false);
-  }, [location.search]);
+  const fetchProducts = async () => {
+    setLoading(true);
+    try {
+      console.log('🔍 Fetching products from:', `${BASE_URL}/api/products`);
+      
+      const response = await fetch(`${BASE_URL}/api/products`);
+      const data = await response.json();
+      
+      console.log('📦 API Response:', data);
+      
+      if (data.success && data.products && data.products.length > 0) {
+        console.log(`✅ Found ${data.products.length} products`);
+        setProducts(data.products);
+        setFilteredProducts(data.products);
+      } else {
+        console.log('❌ No products found in API');
+        // Use mock data as fallback
+        const mockProducts = [
+          { _id: '1', name: 'SG Test Cricket Bat', brand: 'SG', price: 5499, rating: 4.5, category: 'bat', sport: 'cricket', image: '' },
+          { _id: '2', name: 'Nike Football Shoes', brand: 'Nike', price: 5999, rating: 4.7, category: 'shoes', sport: 'football', image: '' },
+          { _id: '3', name: 'Yonex Badminton Racket', brand: 'Yonex', price: 3999, rating: 4.8, category: 'racket', sport: 'badminton', image: '' },
+        ];
+        setProducts(mockProducts);
+        setFilteredProducts(mockProducts);
+      }
+    } catch (error) {
+      console.error('❌ Error fetching products:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     let result = [...products];
-
-    // Search filter
+    
     if (searchQuery) {
-      result = result.filter(p => 
+      result = result.filter(p =>
         p.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         p.brand?.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
-
-    // Category filter
-    if (selectedCategory) {
-      result = result.filter(p => p.sport === selectedCategory);
+    
+    if (selectedBrands.length > 0) {
+      result = result.filter(p => selectedBrands.includes(p.brand));
     }
-
-    // Brand filter
-    if (selectedBrand) {
-      result = result.filter(p => p.brand === selectedBrand);
-    }
-
-    // Price filter
+    
     result = result.filter(p => p.price >= priceRange[0] && p.price <= priceRange[1]);
-
-    // Sorting
-    result.sort((a, b) => {
-      switch (sortBy) {
-        case 'price-low':
-          return a.price - b.price;
-        case 'price-high':
-          return b.price - a.price;
-        case 'rating':
-          return (b.rating || 0) - (a.rating || 0);
-        default:
-          return (b.views || 0) - (a.views || 0);
-      }
-    });
-
+    
+    switch (sortBy) {
+      case 'price-low': result.sort((a, b) => a.price - b.price); break;
+      case 'price-high': result.sort((a, b) => b.price - a.price); break;
+      case 'rating': result.sort((a, b) => (b.rating || 0) - (a.rating || 0)); break;
+      default: break;
+    }
+    
     setFilteredProducts(result);
-  }, [products, searchQuery, selectedCategory, selectedBrand, priceRange, sortBy]);
+    setPage(1);
+  }, [searchQuery, selectedBrands, priceRange, sortBy, products]);
 
-  const categories = ['cricket', 'football', 'badminton', 'basketball', 'gym', 'running'];
-  const brands = ['Nike', 'Adidas', 'Puma', 'SG', 'Yonex', 'Cosco'];
-
-  const handleAddToCart = (product) => {
+  const handleAddToCart = (product, e) => {
+    e.stopPropagation();
     addToCart(product);
     toast.success(`${product.name} added to cart!`);
   };
 
-  const handleWishlist = (product) => {
-    if (isInWishlist(product.id)) {
-      removeFromWishlist(product.id);
+  const handleWishlistToggle = (product, e) => {
+    e.stopPropagation();
+    if (isInWishlist(product._id)) {
+      removeFromWishlist(product._id);
       toast.success('Removed from wishlist');
     } else {
       addToWishlist(product);
@@ -127,257 +143,261 @@ const Products = () => {
     }
   };
 
+  const handleBrandToggle = (brand) => {
+    setSelectedBrands(prev =>
+      prev.includes(brand) ? prev.filter(b => b !== brand) : [...prev, brand]
+    );
+  };
+
+  const handleClearFilters = () => {
+    setSearchQuery('');
+    setSelectedBrands([]);
+    setPriceRange([0, 20000]);
+    setSortBy('popularity');
+  };
+
+  const brands = [...new Set(products.map(p => p.brand))].filter(Boolean);
+  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+  const paginatedProducts = filteredProducts.slice(
+    (page - 1) * itemsPerPage,
+    page * itemsPerPage
+  );
+
   if (loading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
         <CircularProgress />
       </Box>
     );
   }
 
   return (
-    <Box sx={{ p: 2 }}>
+    <Container maxWidth="xl" sx={{ py: 4, bgcolor: '#f1f3f6', minHeight: '100vh' }}>
       {/* Search Bar */}
-      <TextField
-        fullWidth
-        size="small"
-        placeholder="Search products..."
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
-        InputProps={{
-          startAdornment: (
-            <InputAdornment position="start">
-              <Search sx={{ color: '#1976d2' }} />
-            </InputAdornment>
-          ),
-          endAdornment: (
-            <InputAdornment position="end">
-              <IconButton onClick={() => setFilterDrawerOpen(true)}>
-                <Badge 
-                  badgeContent={selectedCategory || selectedBrand || priceRange[0] > 0 ? 1 : 0} 
-                  color="error"
-                >
-                  <FilterList />
-                </Badge>
-              </IconButton>
-            </InputAdornment>
-          ),
-          sx: { borderRadius: 2, bgcolor: 'white' }
-        }}
-        sx={{ mb: 2 }}
-      />
+      <Box sx={{ mb: 4 }}>
+        <Grid container spacing={2}>
+          <Grid item xs={12} md={6}>
+            <TextField
+              fullWidth
+              placeholder="Search products..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              InputProps={{
+                startAdornment: <InputAdornment position="start"><Search /></InputAdornment>,
+                endAdornment: searchQuery && (
+                  <IconButton onClick={() => setSearchQuery('')}>
+                    <Clear />
+                  </IconButton>
+                ),
+              }}
+              sx={{ bgcolor: 'white' }}
+            />
+          </Grid>
+          
+          <Grid item xs={12} md={3}>
+            <FormControl fullWidth sx={{ bgcolor: 'white' }}>
+              <InputLabel>Sort By</InputLabel>
+              <Select value={sortBy} onChange={(e) => setSortBy(e.target.value)} label="Sort By">
+                <MenuItem value="popularity">Popularity</MenuItem>
+                <MenuItem value="price-low">Price: Low to High</MenuItem>
+                <MenuItem value="price-high">Price: High to Low</MenuItem>
+                <MenuItem value="rating">Rating</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
+          
+          <Grid item xs={12} md={3}>
+            <Button
+              fullWidth
+              variant="outlined"
+              startIcon={<FilterList />}
+              onClick={() => setFilterOpen(true)}
+              sx={{ height: '56px', bgcolor: 'white' }}
+            >
+              Filters
+            </Button>
+          </Grid>
+        </Grid>
+      </Box>
 
       {/* Filter Drawer */}
-      <Drawer
-        anchor="bottom"
-        open={filterDrawerOpen}
-        onClose={() => setFilterDrawerOpen(false)}
-        sx={{
-          '& .MuiDrawer-paper': {
-            borderTopLeftRadius: 16,
-            borderTopRightRadius: 16,
-            maxHeight: '80vh',
-          },
-        }}
-      >
-        <Box sx={{ p: 3 }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-            <Typography variant="h6" fontWeight="bold">Filters</Typography>
-            <IconButton onClick={() => setFilterDrawerOpen(false)}>
-              <Clear />
-            </IconButton>
+      <Drawer anchor="left" open={filterOpen} onClose={() => setFilterOpen(false)}>
+        <Box sx={{ width: 300, p: 3 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+            <Typography variant="h6">Filters</Typography>
+            <IconButton onClick={() => setFilterOpen(false)}><Close /></IconButton>
           </Box>
-
-          <Divider sx={{ mb: 2 }} />
-
-          {/* Sort By */}
-          <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
-            Sort By
-          </Typography>
-          <FormControl fullWidth size="small" sx={{ mb: 3 }}>
-            <Select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              displayEmpty
-            >
-              <MenuItem value="popularity">Most Popular</MenuItem>
-              <MenuItem value="price-low">Price: Low to High</MenuItem>
-              <MenuItem value="price-high">Price: High to Low</MenuItem>
-              <MenuItem value="rating">Top Rated</MenuItem>
-            </Select>
-          </FormControl>
-
-          {/* Category */}
-          <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
-            Category
-          </Typography>
-          <FormControl fullWidth size="small" sx={{ mb: 3 }}>
-            <Select
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              displayEmpty
-            >
-              <MenuItem value="">All Categories</MenuItem>
-              {categories.map((cat) => (
-                <MenuItem key={cat} value={cat}>
-                  {cat.charAt(0).toUpperCase() + cat.slice(1)}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-
-          {/* Brand */}
-          <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
-            Brand
-          </Typography>
-          <FormControl fullWidth size="small" sx={{ mb: 3 }}>
-            <Select
-              value={selectedBrand}
-              onChange={(e) => setSelectedBrand(e.target.value)}
-              displayEmpty
-            >
-              <MenuItem value="">All Brands</MenuItem>
-              {brands.map((brand) => (
-                <MenuItem key={brand} value={brand}>{brand}</MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-
-          {/* Price Range */}
-          <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
-            Price Range
-          </Typography>
-          <Box sx={{ px: 1, mb: 3 }}>
-            <Slider
-              value={priceRange}
-              onChange={(e, newValue) => setPriceRange(newValue)}
-              min={0}
-              max={10000}
-              step={500}
-              valueLabelDisplay="auto"
-              valueLabelFormat={(value) => formatINR(value)}
-            />
-            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-              <Typography variant="caption">{formatINR(priceRange[0])}</Typography>
-              <Typography variant="caption">{formatINR(priceRange[1])}</Typography>
-            </Box>
-          </Box>
-
-          {/* Apply Button */}
-          <Button
-            fullWidth
-            variant="contained"
-            onClick={() => setFilterDrawerOpen(false)}
-            sx={{ 
-              bgcolor: '#fb641b',
-              borderRadius: 2,
-              py: 1.5,
-            }}
-          >
-            Apply Filters
+          
+          <Typography variant="subtitle1" gutterBottom>Price Range</Typography>
+          <Slider 
+            value={priceRange} 
+            onChange={(e, v) => setPriceRange(v)} 
+            min={0} 
+            max={20000} 
+            valueLabelDisplay="auto"
+            valueLabelFormat={(value) => `₹${value}`}
+          />
+          
+          {brands.length > 0 && (
+            <>
+              <Typography variant="subtitle1" sx={{ mt: 3 }} gutterBottom>Brands</Typography>
+              <Stack spacing={1}>
+                {brands.map(brand => (
+                  <FormControlLabel
+                    key={brand}
+                    control={<Checkbox checked={selectedBrands.includes(brand)} onChange={() => handleBrandToggle(brand)} />}
+                    label={brand}
+                  />
+                ))}
+              </Stack>
+            </>
+          )}
+          
+          <Button fullWidth variant="contained" onClick={handleClearFilters} sx={{ mt: 3, bgcolor: '#fb641b' }}>
+            Clear Filters
           </Button>
         </Box>
       </Drawer>
 
-      {/* Results Count */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-        <Typography variant="body2" color="text.secondary">
-          {filteredProducts.length} products found
-        </Typography>
-        <Chip 
-          icon={<Sort />} 
-          label={sortBy === 'popularity' ? 'Popular' : sortBy} 
-          size="small"
-          onClick={() => setFilterDrawerOpen(true)}
-        />
-      </Box>
+      {/* Products Count */}
+      <Typography variant="h5" gutterBottom>
+        Products <Chip label={`${filteredProducts.length} items`} size="small" sx={{ ml: 2 }} />
+      </Typography>
 
       {/* Products Grid */}
       {filteredProducts.length === 0 ? (
-        <Box sx={{ textAlign: 'center', py: 4 }}>
-          <Typography variant="h6">No products found</Typography>
+        <Box sx={{ textAlign: 'center', py: 8 }}>
+          <Typography variant="h6" gutterBottom>
+            No products found
+          </Typography>
           <Typography variant="body2" color="text.secondary">
-            Try adjusting your filters
+            Try adjusting your search or filters
           </Typography>
         </Box>
       ) : (
         <Grid container spacing={2}>
-          {filteredProducts.map((product) => (
-            <Grid item xs={6} key={product.id}>
-              <Card sx={{ 
-                borderRadius: 2,
-                position: 'relative',
-                height: '100%',
-                display: 'flex',
-                flexDirection: 'column',
-              }}>
-                {/* Wishlist Button */}
-                <IconButton
-                  sx={{ position: 'absolute', top: 4, right: 4, bgcolor: 'white', zIndex: 1 }}
-                  size="small"
-                  onClick={() => handleWishlist(product)}
-                >
-                  {isInWishlist(product.id) ? (
-                    <Favorite sx={{ color: '#fb641b', fontSize: 20 }} />
-                  ) : (
-                    <FavoriteBorder sx={{ fontSize: 20 }} />
-                  )}
-                </IconButton>
-
-                <CardMedia
-                  component="img"
-                  height="120"
-                  image={product.image || 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'}
-                  alt={product.name}
-                  sx={{ objectFit: 'cover', cursor: 'pointer' }}
-                  onClick={() => navigate(`/products/${product.id}`)}
-                />
-
-                <CardContent sx={{ p: 1.5, flexGrow: 1 }}>
-                  <Typography variant="caption" color="text.secondary">
-                    {product.brand}
-                  </Typography>
-                  <Typography 
-                    variant="body2" 
-                    sx={{ fontWeight: 600, mb: 0.5, cursor: 'pointer' }}
-                    onClick={() => navigate(`/products/${product.id}`)}
-                    noWrap
-                  >
-                    {product.name}
-                  </Typography>
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-                    <Rating value={product.rating || 4.5} size="small" readOnly />
-                    <Typography variant="caption" sx={{ ml: 0.5 }}>
-                      ({product.reviews || 0})
-                    </Typography>
-                  </Box>
-                  <Typography variant="body2" color="primary.main" fontWeight="bold">
-                    {formatINR(product.price)}
-                  </Typography>
-                </CardContent>
-
-                <Button
-                  fullWidth
-                  variant="contained"
-                  size="small"
-                  startIcon={<ShoppingCart />}
-                  onClick={() => handleAddToCart(product)}
+          {paginatedProducts.map((product) => {
+            const discount = Math.floor(Math.random() * 40) + 20;
+            const originalPrice = Math.round(product.price * (1 + discount/100));
+            
+            return (
+              <Grid item xs={12} sm={6} md={4} lg={3} key={product._id}>
+                <Card 
                   sx={{ 
-                    borderRadius: 0,
-                    borderBottomLeftRadius: 8,
-                    borderBottomRightRadius: 8,
-                    bgcolor: '#fb641b',
-                    py: 1,
+                    height: '100%', 
+                    display: 'flex', 
+                    flexDirection: 'column',
+                    position: 'relative',
+                    cursor: 'pointer'
                   }}
+                  onClick={() => navigate(`/products/${product._id}`)}
                 >
-                  Add
-                </Button>
-              </Card>
-            </Grid>
-          ))}
+                  {/* Wishlist Button */}
+                  <IconButton
+                    sx={{
+                      position: 'absolute',
+                      top: 8,
+                      right: 8,
+                      zIndex: 10,
+                      bgcolor: 'white',
+                      boxShadow: 1,
+                    }}
+                    onClick={(e) => handleWishlistToggle(product, e)}
+                  >
+                    {isInWishlist(product._id) ? (
+                      <Favorite sx={{ color: '#fb641b' }} />
+                    ) : (
+                      <FavoriteBorder />
+                    )}
+                  </IconButton>
+
+                  {/* Hot Deal Badge */}
+                  {discount > 30 && (
+                    <Chip 
+                      label="Hot Deal" 
+                      size="small" 
+                      sx={{ position: 'absolute', top: 8, left: 8, bgcolor: '#ff6b6b', color: 'white' }} 
+                    />
+                  )}
+
+                  {/* Product Image */}
+                  <Box
+                    className={`product-image-${product.category || 'default'} product-image-container`}
+                    sx={{
+                      height: 160,
+                      width: '100%',
+                      backgroundSize: 'contain',
+                      backgroundPosition: 'center',
+                      backgroundRepeat: 'no-repeat',
+                      backgroundColor: '#ffffff',
+                    }}
+                  />
+
+                  <CardContent sx={{ p: 1.5 }}>
+                    <Typography variant="caption" color="text.secondary">
+                      {product.brand}
+                    </Typography>
+                    <Typography variant="body2" sx={{ fontWeight: 600, height: 40, overflow: 'hidden' }}>
+                      {product.name}
+                    </Typography>
+                    
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flexWrap: 'wrap' }}>
+                      <Typography variant="caption" sx={{ color: '#00a650', fontWeight: 'bold' }}>
+                        {discount}% off
+                      </Typography>
+                      <Typography variant="caption" sx={{ textDecoration: 'line-through', color: '#999' }}>
+                        {formatINR(originalPrice)}
+                      </Typography>
+                      <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
+                        {formatINR(product.price)}
+                      </Typography>
+                    </Box>
+
+                    <Typography variant="caption" sx={{ color: '#00a650', display: 'block' }}>
+                      WOW! {formatINR(Math.floor(product.price * 0.4))} with 3 offers
+                    </Typography>
+
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5 }}>
+                      <Rating value={product.rating || 4.5} size="small" readOnly />
+                      <Chip label="Assured" size="small" sx={{ height: 16, fontSize: '8px', bgcolor: '#ffc107' }} />
+                    </Box>
+
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                      <LocalShipping sx={{ fontSize: 14, color: '#00a650' }} />
+                      <Typography variant="caption" sx={{ color: '#00a650' }}>Express</Typography>
+                    </Box>
+                  </CardContent>
+
+                  <Box sx={{ p: 1.5, pt: 0 }}>
+                    <Button
+                      fullWidth
+                      variant="contained"
+                      size="small"
+                      startIcon={<ShoppingCart />}
+                      onClick={(e) => handleAddToCart(product, e)}
+                      sx={{ bgcolor: '#fb641b' }}
+                    >
+                      Add to Cart
+                    </Button>
+                  </Box>
+                </Card>
+              </Grid>
+            );
+          })}
         </Grid>
       )}
-    </Box>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+          <Pagination count={totalPages} page={page} onChange={(e, v) => setPage(v)} color="primary" />
+        </Box>
+      )}
+
+      <Fab color="primary" sx={{ position: 'fixed', bottom: 16, right: 16 }} onClick={() => window.scrollTo(0, 0)}>
+        <ArrowUpward />
+      </Fab>
+    </Container>
   );
 };
 

@@ -36,3 +36,138 @@
     transform: rotate(360deg);
   }
 }
+/* ========== PRODUCT IMAGE CONTAINER ========== */
+
+.product-image-container{
+  width:100%;
+  height:200px;
+  border-radius:8px;
+  background-color:#ffffff;
+  background-size:contain;
+  background-repeat:no-repeat;
+  background-position:center;
+}
+
+/* ================= CRICKET ================= */
+
+.product-image-bat{
+  background-image:url("https://upload.wikimedia.org/wikipedia/commons/6/6e/Cricket_bat.jpg");
+}
+
+.product-image-ball{
+  background-image:url("https://upload.wikimedia.org/wikipedia/commons/6/6a/Cricket_ball.jpg");
+}
+
+.product-image-helmet{
+  background-image:url("https://upload.wikimedia.org/wikipedia/commons/5/55/Cricket_helmet.jpg");
+}
+
+.product-image-gloves{
+  background-image:url("https://upload.wikimedia.org/wikipedia/commons/f/f4/Cricket_gloves.jpg");
+}
+
+.product-image-pads{
+  background-image:url("https://upload.wikimedia.org/wikipedia/commons/8/8f/Cricket_pads.jpg");
+}
+
+.product-image-shoes{
+  background-image:url("https://upload.wikimedia.org/wikipedia/commons/2/2d/Sports_shoes.jpg");
+}
+
+.product-image-bag{
+  background-image:url("https://upload.wikimedia.org/wikipedia/commons/5/5f/Sports_bag.jpg");
+}
+
+.product-image-guard{
+  background-image:url("https://upload.wikimedia.org/wikipedia/commons/3/34/Cricket_abdomen_guard.jpg");
+}
+
+/* ================= FOOTBALL ================= */
+
+.product-image-football{
+  background-image:url("https://upload.wikimedia.org/wikipedia/commons/d/d3/Soccerball.svg");
+}
+
+.product-image-jersey{
+  background-image:url("https://upload.wikimedia.org/wikipedia/commons/8/8e/Football_kit.jpg");
+}
+
+.product-image-shinguard{
+  background-image:url("https://upload.wikimedia.org/wikipedia/commons/7/70/Shin_guards.jpg");
+}
+
+.product-image-goal{
+  background-image:url("https://upload.wikimedia.org/wikipedia/commons/4/43/Football_goal.jpg");
+}
+
+/* ================= BADMINTON ================= */
+
+.product-image-racket{
+  background-image:url("https://upload.wikimedia.org/wikipedia/commons/3/3b/Badminton_racket.jpg");
+}
+
+.product-image-shuttlecock{
+  background-image:url("https://upload.wikimedia.org/wikipedia/commons/9/9b/Shuttlecock.jpg");
+}
+
+.product-image-badminton-net{
+  background-image:url("https://upload.wikimedia.org/wikipedia/commons/a/a7/Badminton_net.jpg");
+}
+
+/* ================= BASKETBALL ================= */
+
+.product-image-basketball{
+  background-image:url("https://upload.wikimedia.org/wikipedia/commons/7/7a/Basketball.png");
+}
+
+.product-image-hoop{
+  background-image:url("https://upload.wikimedia.org/wikipedia/commons/6/6e/Basketball_hoop.jpg");
+}
+
+.product-image-backboard{
+  background-image:url("https://upload.wikimedia.org/wikipedia/commons/1/16/Basketball_backboard.jpg");
+}
+
+/* ================= GYM ================= */
+
+.product-image-dumbbells{
+  background-image:url("https://upload.wikimedia.org/wikipedia/commons/0/02/Dumbbells.jpg");
+}
+
+.product-image-barbell{
+  background-image:url("https://upload.wikimedia.org/wikipedia/commons/3/3e/Barbell.jpg");
+}
+
+.product-image-bench{
+  background-image:url("https://upload.wikimedia.org/wikipedia/commons/7/7c/Weight_bench.jpg");
+}
+
+.product-image-mat{
+  background-image:url("https://upload.wikimedia.org/wikipedia/commons/2/25/Yoga_mat.jpg");
+}
+
+.product-image-kettlebell{
+  background-image:url("https://upload.wikimedia.org/wikipedia/commons/3/3f/Kettlebell.jpg");
+}
+
+.product-image-treadmill{
+  background-image:url("https://upload.wikimedia.org/wikipedia/commons/3/30/Treadmill.jpg");
+}
+
+/* ================= RUNNING ================= */
+
+.product-image-running-shoes{
+  background-image:url("https://upload.wikimedia.org/wikipedia/commons/7/75/Running_shoes.jpg");
+}
+
+.product-image-watch{
+  background-image:url("https://upload.wikimedia.org/wikipedia/commons/2/2e/Garmin_watch.jpg");
+}
+
+.product-image-bottle{
+  background-image:url("https://upload.wikimedia.org/wikipedia/commons/2/21/Water_bottle.jpg");
+}
+
+.product-image-energy{
+  background-image:url("https://upload.wikimedia.org/wikipedia/commons/5/56/Energy_bar.jpg");
+}

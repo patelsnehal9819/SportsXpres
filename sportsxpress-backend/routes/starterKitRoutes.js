@@ -1,0 +1,35 @@
+const express = require('express');
+const router = express.Router();
+const StarterKit = require('../models/StarterKit');
+
+// Save starter kit
+router.post('/save', async (req, res) => {
+  try {
+    const kitData = req.body;
+    kitData.kitId = 'KIT' + Date.now() + Math.floor(Math.random() * 1000);
+    
+    const kit = new StarterKit(kitData);
+    await kit.save();
+    
+    res.status(201).json({ 
+      success: true, 
+      message: 'Starter kit saved successfully',
+      kit 
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// Get user's saved kits
+router.get('/user/:userId', async (req, res) => {
+  try {
+    const kits = await StarterKit.find({ user: req.params.userId })
+      .sort('-createdAt');
+    res.json({ success: true, kits });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+module.exports = router;

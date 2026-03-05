@@ -1,185 +1,124 @@
 import React from 'react';
 import {
-  Box,
+  Container,
   Grid,
   Card,
   CardContent,
-  CardMedia,
   Typography,
   Button,
+  Box,
   IconButton,
   Rating,
-  Chip,
-  Paper,
-  Divider,
 } from '@mui/material';
 import {
-  Favorite,
   Delete,
   ShoppingCart,
   ArrowBack,
-  Share,
+  Favorite,
 } from '@mui/icons-material';
 import { useNavigate, Link } from 'react-router-dom';
-import { useWishlist } from '../context/WishlistContext';
 import { useCart } from '../context/CartContext';
+import { useWishlist } from '../context/WishlistContext';
 import { formatINR } from '../utils/currencyFormatter';
 import toast from 'react-hot-toast';
+import '../App.css';
 
 const Wishlist = () => {
-  const { wishlistItems, removeFromWishlist, clearWishlist } = useWishlist();
-  const { addToCart } = useCart();
   const navigate = useNavigate();
+  const { addToCart } = useCart();
+  const { wishlistItems, removeFromWishlist } = useWishlist();
 
-  const handleAddToCart = (product) => {
-    addToCart(product);
-    removeFromWishlist(product.id);
-    toast.success(`${product.name} moved to cart!`);
-  };
-
-  const handleShareWishlist = () => {
-    if (navigator.share) {
-      navigator.share({
-        title: 'My SportsXpress Wishlist',
-        text: `Check out my wishlist with ${wishlistItems.length} items!`,
-        url: window.location.href,
-      });
-    } else {
-      navigator.clipboard.writeText(window.location.href);
-      toast.success('Wishlist link copied!');
-    }
+  const handleAddToCart = (item) => {
+    addToCart({
+      _id: item.productId,
+      name: item.name,
+      price: item.price,
+      brand: item.brand,
+      image: item.image
+    });
+    removeFromWishlist(item.productId);
+    toast.success(`${item.name} moved to cart!`);
   };
 
   if (wishlistItems.length === 0) {
     return (
-      <Box sx={{ p: 2, textAlign: 'center', pt: 8 }}>
+      <Container sx={{ py: 8, textAlign: 'center' }}>
         <Favorite sx={{ fontSize: 80, color: '#ccc', mb: 3 }} />
-        <Typography variant="h6" gutterBottom>
+        <Typography variant="h5" gutterBottom>
           Your wishlist is empty
-        </Typography>
-        <Typography variant="body2" color="text.secondary" paragraph>
-          Save your favorite items here and shop them later!
         </Typography>
         <Button
           variant="contained"
           component={Link}
           to="/products"
           startIcon={<ArrowBack />}
-          sx={{ bgcolor: '#fb641b', borderRadius: 2, px: 4 }}
+          sx={{ bgcolor: '#fb641b' }}
         >
-          Shop Now
+          Browse Products
         </Button>
-      </Box>
+      </Container>
     );
   }
 
   return (
-    <Box sx={{ p: 2 }}>
-      {/* Header */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-        <Typography variant="h6" fontWeight="bold">
-          My Wishlist ({wishlistItems.length})
-        </Typography>
-        <Box sx={{ display: 'flex', gap: 1 }}>
-          <IconButton size="small" onClick={handleShareWishlist} sx={{ bgcolor: '#f5f5f5' }}>
-            <Share fontSize="small" />
-          </IconButton>
-          <IconButton size="small" onClick={clearWishlist} sx={{ bgcolor: '#f5f5f5' }}>
-            <Delete fontSize="small" />
-          </IconButton>
-        </Box>
-      </Box>
+    <Container maxWidth="lg" sx={{ py: 4 }}>
+      <Typography variant="h4" fontWeight="bold" gutterBottom>
+        My Wishlist ({wishlistItems.length})
+      </Typography>
 
-      <Divider sx={{ mb: 2 }} />
-
-      {/* Wishlist Grid */}
-      <Grid container spacing={2}>
+      <Grid container spacing={3}>
         {wishlistItems.map((item) => (
-          <Grid item xs={6} key={item.id}>
-            <Card sx={{ 
-              borderRadius: 2,
-              position: 'relative',
-              height: '100%',
-              display: 'flex',
-              flexDirection: 'column',
-            }}>
-              {/* Remove Button */}
+          <Grid item xs={12} sm={6} md={4} lg={3} key={item.productId}>
+            <Card sx={{ height: '100%', position: 'relative' }}>
               <IconButton
-                sx={{ position: 'absolute', top: 4, right: 4, bgcolor: 'white', zIndex: 1 }}
-                size="small"
-                onClick={() => removeFromWishlist(item.id)}
+                sx={{ position: 'absolute', top: 8, right: 8, bgcolor: 'white' }}
+                onClick={() => removeFromWishlist(item.productId)}
               >
-                <Delete sx={{ color: '#f44336', fontSize: 20 }} />
+                <Delete color="error" />
               </IconButton>
 
-              <CardMedia
-                component="img"
-                height="120"
-                image={item.image || 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'}
-                alt={item.name}
-                sx={{ objectFit: 'cover', cursor: 'pointer' }}
-                onClick={() => navigate(`/products/${item.id}`)}
+              <Box
+                className={`product-image-${item.category || 'default'} product-image-container`}
+                sx={{
+                  height: 180,
+                  width: '100%',
+                  backgroundSize: 'contain',
+                  backgroundPosition: 'center',
+                  backgroundRepeat: 'no-repeat',
+                  cursor: 'pointer'
+                }}
+                onClick={() => navigate(`/products/${item.productId}`)}
               />
 
-              <CardContent sx={{ p: 1.5, flexGrow: 1 }}>
+              <CardContent>
                 <Typography variant="caption" color="text.secondary">
                   {item.brand}
                 </Typography>
-                <Typography 
-                  variant="body2" 
-                  sx={{ fontWeight: 600, mb: 0.5, cursor: 'pointer' }}
-                  onClick={() => navigate(`/products/${item.id}`)}
-                  noWrap
-                >
+                <Typography variant="h6" sx={{ fontSize: '16px', fontWeight: 600 }}>
                   {item.name}
                 </Typography>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-                  <Rating value={item.rating || 4.5} size="small" readOnly />
-                  <Typography variant="caption" sx={{ ml: 0.5 }}>
-                    ({item.reviews || 0})
-                  </Typography>
-                </Box>
-                <Typography variant="body2" color="primary.main" fontWeight="bold">
+                <Rating value={4.5} size="small" readOnly />
+                <Typography variant="h6" color="primary.main" fontWeight="bold">
                   {formatINR(item.price)}
                 </Typography>
-                {item.discount > 0 && (
-                  <Typography variant="caption" color="success.main">
-                    {item.discount}% off
-                  </Typography>
-                )}
               </CardContent>
 
-              <Button
-                fullWidth
-                variant="contained"
-                size="small"
-                startIcon={<ShoppingCart />}
-                onClick={() => handleAddToCart(item)}
-                sx={{ 
-                  borderRadius: 0,
-                  borderBottomLeftRadius: 8,
-                  borderBottomRightRadius: 8,
-                  bgcolor: '#fb641b',
-                  py: 1,
-                }}
-              >
-                Move to Cart
-              </Button>
+              <Box sx={{ p: 2, pt: 0 }}>
+                <Button
+                  fullWidth
+                  variant="contained"
+                  startIcon={<ShoppingCart />}
+                  onClick={() => handleAddToCart(item)}
+                  sx={{ bgcolor: '#fb641b' }}
+                >
+                  Move to Cart
+                </Button>
+              </Box>
             </Card>
           </Grid>
         ))}
       </Grid>
-
-      {/* Total Value */}
-      <Paper sx={{ mt: 3, p: 2, borderRadius: 2, bgcolor: '#f5f5f5' }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Typography variant="body1">Total Value</Typography>
-          <Typography variant="h6" color="primary.main" fontWeight="bold">
-            {formatINR(wishlistItems.reduce((sum, item) => sum + item.price, 0))}
-          </Typography>
-        </Box>
-      </Paper>
-    </Box>
+    </Container>
   );
 };
 
