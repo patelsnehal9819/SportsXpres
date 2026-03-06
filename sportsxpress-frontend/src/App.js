@@ -6,10 +6,12 @@ import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import { WishlistProvider } from './context/WishlistContext';
+import { NotificationProvider } from './context/NotificationContext';
 import Layout from './components/layout/Layout';
 import SportsPage from './pages/SportsPage';
 import FeedbackPage from './pages/FeedbackPage';
 import OrdersPage from './pages/OrdersPage';
+import Notifications from './pages/Notifications';
 
 // Import product loader
 import { loadAllProducts } from './data/sportProducts';
@@ -62,41 +64,42 @@ function App() {
       <CssBaseline />
       <Toaster position="top-right" />
       <AuthProvider>
-        <WishlistProvider>
-          <CartProvider>
-            <Router>
-              <Layout>
-                <Routes>
-                  <Route path="/" element={<Home />} />
-                  <Route path="/products" element={<Products />} />
-                  <Route path="/sport/:category" element={<SportCategory />} />
-                  <Route path="/products/:id" element={<ProductDetail />} />
-                  <Route path="/sports-shoes" element={<SportsShoes />} />
-                  <Route path="/sports-jersey" element={<SportsJersey />} />
-                  <Route path="/medical-kits" element={<MedicalKits />} />
-                  <Route path="/cart" element={<Cart />} />
-                  <Route path="/checkout" element={<Checkout />} />
-                  <Route path="/order-confirmation/:orderId" element={<OrderConfirmation />} />
-                  <Route path="/login" element={<Login />} />
-                  <Route path="/signup" element={<Signup />} />
-                  <Route path="/profile" element={<Profile />} />
-                  <Route path="/orders" element={<OrderTracking />} />
-                  <Route path="/orders/:orderId" element={<OrderDetails />} />
-                  <Route path="/starter-kit" element={<StarterKit />} />
-                  <Route path="/ai-size" element={<AISizePage />} />
-                  <Route path="/wishlist" element={<Wishlist />} />
-                  <Route path="/admin/add-product" element={<AdminAddProduct />} />
-                  <Route path="/sports-page" element={<SportsPage />} />
-                  
-                  {/* ✅ FEEDBACK ROUTE - Properly Added */}
-                  <Route path="/feedback/:orderId" element={<FeedbackPage />} />
-                  <Route path="/orders" element={<OrdersPage />} />
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </Layout>
-            </Router>
-          </CartProvider>
-        </WishlistProvider>
+        <NotificationProvider>
+          <WishlistProvider>
+            <CartProvider>
+              <Router>
+                <Layout>
+                  <Routes>
+                    <Route path="/" element={<Home />} />
+                    <Route path="/products" element={<Products />} />
+                    <Route path="/sport/:category" element={<SportCategory />} />
+                    <Route path="/products/:id" element={<ProductDetail />} />
+                    <Route path="/sports-shoes" element={<SportsShoes />} />
+                    <Route path="/sports-jersey" element={<SportsJersey />} />
+                    <Route path="/medical-kits" element={<MedicalKits />} />
+                    <Route path="/cart" element={<Cart />} />
+                    <Route path="/checkout" element={<Checkout />} />
+                    <Route path="/order-confirmation/:orderId" element={<OrderConfirmation />} />
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/signup" element={<Signup />} />
+                    <Route path="/profile" element={<Profile />} />
+                    <Route path="/orders" element={<OrderTracking />} />
+                    <Route path="/orders/:orderId" element={<OrderDetails />} />
+                    <Route path="/starter-kit" element={<StarterKit />} />
+                    <Route path="/ai-size" element={<AISizePage />} />
+                    <Route path="/wishlist" element={<Wishlist />} />
+                    <Route path="/admin/add-product" element={<AdminAddProduct />} />
+                    <Route path="/sports-page" element={<SportsPage />} />
+                    <Route path="/feedback/:orderId" element={<FeedbackPage />} />
+                    <Route path="/orders" element={<OrdersPage />} />
+                    <Route path="/notifications" element={<Notifications />} />
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </Layout>
+              </Router>
+            </CartProvider>
+          </WishlistProvider>
+        </NotificationProvider>
       </AuthProvider>
     </ThemeProvider>
   );

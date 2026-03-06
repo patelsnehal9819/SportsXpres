@@ -63,49 +63,66 @@ export const CartProvider = ({ children }) => {
         }));
         setCartItems(items);
         console.log('✅ Cart loaded with', items.length, 'items');
+      } else {
+        console.log('❌ Failed to load cart:', data.message);
       }
     } catch (error) {
       console.error('Error loading cart:', error);
     }
   };
 
+  // ========== FIXED: addToCart with better error handling ==========
   const addToCart = async (product, quantity = 1) => {
     const user = getCurrentUser();
     
     if (!user?._id) {
       console.log('❌ No user found');
       toast.error('Please login first');
-      return;
+      return false;
     }
 
-    console.log('🛍️ Adding to cart for user:', user.email);
+    console.log('🛍️ Adding to cart - User:', user._id);
+    console.log('📦 Product:', product);
+
+    // Ensure product has all required fields
+    const cartItem = {
+      userId: user._id,
+      productId: product._id || product.id,
+      name: product.name || 'Product',
+      price: product.price || 0,
+      quantity: quantity || 1,
+      image: product.image || 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438',
+      brand: product.brand || 'SportsXpress',
+      category: product.category || 'kit'
+    };
+
+    console.log('📤 Sending to backend:', cartItem);
 
     try {
       const response = await fetch(`${BASE_URL}/api/cart/add`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userId: user._id,
-          productId: product._id,
-          name: product.name,
-          price: product.price,
-          quantity: quantity,
-          image: product.image,
-          brand: product.brand,
-          category: product.category
-        })
+        headers: { 
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(cartItem)
       });
       
       const data = await response.json();
+      console.log('📥 Backend response:', data);
+      
       if (data.success) {
         await loadCart(user._id);
         toast.success('Added to cart');
+        return true;
       } else {
-        toast.error('Failed to add to cart');
+        console.error('❌ Backend error:', data.message);
+        toast.error(data.message || 'Failed to add to cart');
+        return false;
       }
     } catch (error) {
-      console.error('Error adding to cart:', error);
-      toast.error('Error adding to cart');
+      console.error('❌ Fetch error:', error);
+      toast.error('Network error - please try again');
+      return false;
     }
   };
 
@@ -117,15 +134,23 @@ export const CartProvider = ({ children }) => {
     }
 
     try {
-      await fetch(`${BASE_URL}/api/cart/remove`, {
+      console.log('🗑️ Removing from cart:', productId);
+      const response = await fetch(`${BASE_URL}/api/cart/remove`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId: user._id, productId })
       });
-      await loadCart(user._id);
-      toast.success('Removed from cart');
+      
+      const data = await response.json();
+      if (data.success) {
+        await loadCart(user._id);
+        toast.success('Removed from cart');
+      } else {
+        toast.error(data.message || 'Failed to remove');
+      }
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Error removing from cart:', error);
+      toast.error('Error removing item');
     }
   };
 
@@ -139,14 +164,21 @@ export const CartProvider = ({ children }) => {
     }
 
     try {
-      await fetch(`${BASE_URL}/api/cart/update`, {
+      console.log('🔄 Updating quantity:', { productId, quantity });
+      const response = await fetch(`${BASE_URL}/api/cart/update`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId: user._id, productId, quantity })
       });
-      await loadCart(user._id);
+      
+      const data = await response.json();
+      if (data.success) {
+        await loadCart(user._id);
+      } else {
+        toast.error(data.message || 'Failed to update');
+      }
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Error updating quantity:', error);
     }
   };
 
@@ -155,13 +187,18 @@ export const CartProvider = ({ children }) => {
     if (!user?._id) return;
 
     try {
-      await fetch(`${BASE_URL}/api/cart/clear/${user._id}`, {
+      console.log('🗑️ Clearing cart for user:', user._id);
+      const response = await fetch(`${BASE_URL}/api/cart/clear/${user._id}`, {
         method: 'DELETE'
       });
-      setCartItems([]);
-      toast.success('Cart cleared');
+      
+      const data = await response.json();
+      if (data.success) {
+        setCartItems([]);
+        toast.success('Cart cleared');
+      }
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Error clearing cart:', error);
     }
   };
 

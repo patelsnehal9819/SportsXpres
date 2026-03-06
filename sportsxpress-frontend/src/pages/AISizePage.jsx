@@ -26,6 +26,7 @@ import {
   Straighten,
 } from '@mui/icons-material';
 import { formatINR } from '../utils/currencyFormatter';
+import toast from 'react-hot-toast';
 
 const AISizePage = () => {
   const [formData, setFormData] = useState({
@@ -38,6 +39,9 @@ const AISizePage = () => {
   });
   const [recommendation, setRecommendation] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  const BASE_URL = 'https://solid-fishstick-7v74445764vj3pjgx-5000.app.github.dev';
 
   const sports = ['Cricket', 'Football', 'Badminton', 'Basketball', 'Running', 'Gym', 'Tennis'];
   const productTypes = [
@@ -56,10 +60,56 @@ const AISizePage = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  // ========== NEW: Save recommendation to backend ==========
+  const saveRecommendationToBackend = async (sizeData) => {
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (!user) {
+      toast.error('Please login to save your size recommendation');
+      return false;
+    }
+
+    setSaving(true);
+
+    const recommendationData = {
+      user: user._id,
+      height: parseInt(formData.height) || 170,
+      weight: parseInt(formData.weight) || 65,
+      age: parseInt(formData.age) || 25,
+      sport: formData.sport || 'general',
+      productType: formData.productType,
+      fitPreference: formData.fitPreference || 'regular',
+      recommendedSize: sizeData.size,
+      sizeGuide: sizeData.sizeGuide,
+      confidence: sizeData.confidence
+    };
+
+    try {
+      const response = await fetch(`${BASE_URL}/api/ai-size/save`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(recommendationData)
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        console.log('✅ Size recommendation saved to database:', data.recommendation);
+        toast.success('Size recommendation saved!');
+        return true;
+      }
+    } catch (error) {
+      console.error('❌ Error saving recommendation:', error);
+      toast.error('Failed to save recommendation');
+    } finally {
+      setSaving(false);
+    }
+    return false;
+  };
+
+  // ========== UPDATED: getSizeRecommendation with auto-save ==========
   const getSizeRecommendation = () => {
     setLoading(true);
     
-    setTimeout(() => {
+    setTimeout(async () => {
       const height = parseInt(formData.height) || 170;
       const weight = parseInt(formData.weight) || 65;
       const age = parseInt(formData.age) || 25;
@@ -117,7 +167,12 @@ const AISizePage = () => {
         size = size === 'XXL' ? 'XXL' : size === 'XL' ? 'XXL' : size === 'L' ? 'XL' : 'L';
       }
 
-      setRecommendation({ size, sizeGuide, description, confidence });
+      const recommendationData = { size, sizeGuide, description, confidence };
+      setRecommendation(recommendationData);
+      
+      // AUTO-SAVE TO BACKEND
+      await saveRecommendationToBackend(recommendationData);
+      
       setLoading(false);
     }, 1500);
   };
@@ -252,7 +307,7 @@ const AISizePage = () => {
               fullWidth
               variant="contained"
               onClick={getSizeRecommendation}
-              disabled={loading}
+              disabled={loading || saving}
               sx={{ 
                 mt: 1, 
                 py: 1.5, 
@@ -261,7 +316,7 @@ const AISizePage = () => {
                 '&:hover': { bgcolor: '#f4511e' }
               }}
             >
-              {loading ? <CircularProgress size={24} sx={{ color: 'white' }} /> : 'Get My Size'}
+              {loading ? <CircularProgress size={24} sx={{ color: 'white' }} /> : saving ? 'Saving...' : 'Get My Size'}
             </Button>
           </Grid>
         </Grid>

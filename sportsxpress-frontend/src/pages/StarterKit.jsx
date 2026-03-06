@@ -191,7 +191,6 @@ const StarterKit = () => {
   const steps = ['Sport', 'Level', 'Budget', 'Choose', 'Review'];
   const currentKits = selectedSport ? getKitsForSport()[skillLevel] : [];
 
-  // ========== NEW: Save kit to backend ==========
   const saveKitToBackend = async () => {
     const user = JSON.parse(localStorage.getItem('user'));
     if (!user) {
@@ -248,7 +247,6 @@ const StarterKit = () => {
     return false;
   };
 
-  // ========== NEW: Auto-save when reaching review step ==========
   useEffect(() => {
     if (activeStep === 4 && customizedKit.length > 0) {
       saveKitToBackend();
@@ -272,7 +270,7 @@ const StarterKit = () => {
     toast.success(`${kit.name} selected!`);
   };
 
-  // ========== UPDATED: handleAddToCart with save ==========
+  // ========== UPDATED: handleAddToCart with proper _id ==========
   const handleAddToCart = async () => {
     if (customizedKit.length === 0) {
       toast.error('Please select a kit first');
@@ -282,13 +280,21 @@ const StarterKit = () => {
     const kitTotal = customizedKit.reduce((sum, item) => sum + item.price, 0);
     const sportName = sports.find(s => s.id === selectedSport)?.name || '';
     
+    // IMPORTANT: Use _id instead of id for cart context
     const kitProduct = {
-      id: `kit-${Date.now()}`,
+      _id: `kit-${Date.now()}`,  // Add _id field
+      id: `kit-${Date.now()}`,    // Keep id for compatibility
       name: `${sportName} ${skillLevel} Kit`,
       price: kitTotal,
+      quantity: 1,  // Add quantity
       items: customizedKit,
       sport: selectedSport,
+      category: 'kit',
+      image: sports.find(s => s.id === selectedSport)?.image || sportImages[selectedSport],
+      brand: 'SportsXpress'
     };
+
+    console.log('🛒 Adding kit to cart:', kitProduct);
 
     // Save to backend first
     const saved = await saveKitToBackend();
@@ -296,10 +302,13 @@ const StarterKit = () => {
     // Add to cart
     addToCart(kitProduct);
     toast.success('Starter kit added to cart!');
-    navigate('/cart');
+    
+    // Navigate to cart after short delay
+    setTimeout(() => {
+      navigate('/cart');
+    }, 500);
   };
 
-  // ========== NEW: Save button for manual save ==========
   const handleSaveKit = async () => {
     await saveKitToBackend();
   };
