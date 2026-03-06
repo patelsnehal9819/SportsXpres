@@ -18,7 +18,7 @@ const Home = () => {
 
   const mostViewedProducts = [
     { 
-      _id: '69a921d1056cc3da1378a6cf', // SG Test Cricket Bat
+      _id: '69a97bc66a9f0a6d69379931', // SG Test Cricket Bat
       name: 'SG Test Cricket Bat', 
       brand: 'SG', 
       price: 5499, 
@@ -27,8 +27,8 @@ const Home = () => {
       views: 2345 
     },
     { 
-      _id: '69a921d1056cc3da1378a6d9', // Nike Mercurial Football Shoes
-      name: 'Nike Mercurial Football Shoes', 
+      _id: '69a97bc66a9f0a6d6937994f', // Nike Mercurial Superfly
+      name: 'Nike Mercurial Superfly', 
       brand: 'Nike', 
       price: 12999, 
       rating: 4.9, 
@@ -36,7 +36,7 @@ const Home = () => {
       views: 1890 
     },
     { 
-      _id: '69a921d1056cc3da1378a6e0', // Yonex Astrox 100 ZZ
+      _id: '69a97bc66a9f0a6d6937996d', // Yonex Astrox 100 ZZ
       name: 'Yonex Astrox 100 ZZ', 
       brand: 'Yonex', 
       price: 18999, 
@@ -45,7 +45,7 @@ const Home = () => {
       views: 1567 
     },
     { 
-      _id: '69a921d1056cc3da1378a6e5', // Spalding NBA Basketball
+      _id: '69a97bc66a9f0a6d6937998d', // Spalding NBA Basketball
       name: 'Spalding NBA Basketball', 
       brand: 'Spalding', 
       price: 3999, 
@@ -159,7 +159,7 @@ const Home = () => {
         ))}
       </Grid>
 
-      {/* Most Viewed Products - FIXED with _id instead of id */}
+      {/* Most Viewed Products */}
       <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
         🔥 Most Viewed
       </Typography>
@@ -168,7 +168,7 @@ const Home = () => {
           <Grid item xs={6} key={product._id}>
             <Card 
               component={Link}
-              to={`/products/${product._id}`}  // ← CHANGED from product.id to product._id
+              to={`/products/${product._id}`}
               sx={{ 
                 textDecoration: 'none',
                 height: '100%',

@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const Order = require('../models/Order');
+const User = require('../models/User');
+const { sendOrderSMS } = require('../services/smsService'); // ← ADD THIS
 
 // Create new order
 router.post('/', async (req, res) => {
@@ -11,8 +13,30 @@ router.post('/', async (req, res) => {
     const order = new Order(orderData);
     await order.save();
     
-    res.status(201).json({ success: true, order });
+    console.log('✅ Order saved:', order.orderId);
+    
+    // 🚀 SEND ORDER CONFIRMATION SMS
+    try {
+      const user = await User.findById(orderData.user);
+      if (user && user.phone) {
+        sendOrderSMS(user.phone, user.name, order.orderId, orderData.total).catch(err => {
+          console.error('❌ Failed to send order SMS:', err.message);
+        });
+        console.log('📱 Order confirmation SMS queued for:', user.phone);
+      }
+    } catch (smsError) {
+      console.error('❌ Error sending order SMS:', smsError.message);
+      // Don't fail the order if SMS fails
+    }
+    
+    res.status(201).json({ 
+      success: true, 
+      message: 'Order placed successfully!',
+      order 
+    });
+    
   } catch (error) {
+    console.error('❌ Order creation error:', error);
     res.status(500).json({ success: false, message: error.message });
   }
 });

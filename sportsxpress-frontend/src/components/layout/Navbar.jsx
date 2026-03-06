@@ -35,11 +35,13 @@ import {
   Grass as ShoesIcon,
   ExpandMore,
   ExpandLess,
-  Receipt as OrdersIcon,  // ← ADD THIS IMPORT
+  Receipt as OrdersIcon,
+  Notifications as NotificationsIcon,  // ← ADD THIS IMPORT
 } from '@mui/icons-material';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
+import { useNotifications } from '../../context/NotificationContext'; // ← ADD THIS IMPORT
 import MobileNav from './MobileNav';
 
 const Search = styled('div')(({ theme }) => ({
@@ -80,6 +82,7 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 const Navbar = () => {
   const { user, logout } = useAuth();
   const { getCartCount } = useCart();
+  const { notifications } = useNotifications(); // ← GET NOTIFICATIONS COUNT
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [anchorEl, setAnchorEl] = useState(null);
@@ -142,7 +145,14 @@ const Navbar = () => {
           <Button color="inherit" component={Link} to="/sports-shoes" startIcon={<ShoesIcon />} sx={{ mx: 0.5, fontWeight: 500 }}>Shoes</Button>
           <Button color="inherit" component={Link} to="/medical-kits" startIcon={<MedicalIcon />} sx={{ mx: 0.5, fontWeight: 500 }}>Medical</Button>
 
-          {/* SEPARATE ORDERS BUTTON - VISIBLE WHEN LOGGED IN */}
+          {/* NOTIFICATION BUTTON - ADD THIS */}
+          <IconButton color="inherit" component={Link} to="/notifications" sx={{ ml: 1 }}>
+            <Badge badgeContent={notifications.length} color="error">
+              <NotificationsIcon />
+            </Badge>
+          </IconButton>
+
+          {/* ORDERS BUTTON - VISIBLE WHEN LOGGED IN */}
           {user && (
             <Button 
               color="inherit" 
@@ -182,7 +192,7 @@ const Navbar = () => {
               </Box>
               <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
                 <MenuItem component={Link} to="/profile" onClick={handleMenuClose}><PersonIcon sx={{ mr: 1 }} /> Profile</MenuItem>
-                {/* Orders option in dropdown as well (optional) */}
+                <MenuItem component={Link} to="/notifications" onClick={handleMenuClose}><NotificationsIcon sx={{ mr: 1 }} /> Notifications</MenuItem>
                 <MenuItem component={Link} to="/orders" onClick={handleMenuClose}><OrdersIcon sx={{ mr: 1 }} /> My Orders</MenuItem>
                 <MenuItem onClick={handleLogout}>Logout</MenuItem>
               </Menu>

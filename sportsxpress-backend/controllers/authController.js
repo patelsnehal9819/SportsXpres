@@ -1,5 +1,6 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
+const { sendWelcomeSMS, sendLoginSMS } = require('../services/smsService'); // ← ADD THIS
 
 // Generate JWT
 const generateToken = (id) => {
@@ -54,6 +55,11 @@ const registerUser = async (req, res) => {
     });
 
     console.log('✅ User created successfully:', user._id);
+
+    // 🚀 SEND WELCOME SMS
+    sendWelcomeSMS(user.phone, user.name).catch(err => {
+      console.error('❌ Failed to send welcome SMS:', err.message);
+    });
 
     res.status(201).json({
       success: true,
@@ -111,6 +117,11 @@ const loginUser = async (req, res) => {
     }
 
     console.log('✅ Login successful for:', user.email);
+
+    // 🚀 SEND LOGIN SMS
+    sendLoginSMS(user.phone, user.name).catch(err => {
+      console.error('❌ Failed to send login SMS:', err.message);
+    });
 
     res.json({
       success: true,
