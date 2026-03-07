@@ -6,6 +6,8 @@ export const useCart = () => useContext(CartContext);
 
 export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState([]);
+  
+  // ✅ FIXED: Use the same BASE_URL as your other files
   const BASE_URL = 'https://solid-fishstick-7v74445764vj3pjgx-5000.app.github.dev';
 
   // Helper function to get current user
@@ -47,8 +49,16 @@ export const CartProvider = ({ children }) => {
   const loadCart = async (userId) => {
     try {
       console.log('🛒 Loading cart for user:', userId);
+      console.log('📡 Fetching from:', `${BASE_URL}/api/cart/${userId}`);
+      
       const res = await fetch(`${BASE_URL}/api/cart/${userId}`);
+      
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+      
       const data = await res.json();
+      console.log('📦 Cart response:', data);
       
       if (data.success) {
         const items = data.cart.items.map(item => ({
@@ -68,10 +78,11 @@ export const CartProvider = ({ children }) => {
       }
     } catch (error) {
       console.error('Error loading cart:', error);
+      toast.error('Could not load cart');
     }
   };
 
-  // ========== FIXED: addToCart with better error handling ==========
+  // ========== FIXED: addToCart with correct BASE_URL ==========
   const addToCart = async (product, quantity = 1) => {
     const user = getCurrentUser();
     
@@ -97,6 +108,7 @@ export const CartProvider = ({ children }) => {
     };
 
     console.log('📤 Sending to backend:', cartItem);
+    console.log('📡 Posting to:', `${BASE_URL}/api/cart/add`);
 
     try {
       const response = await fetch(`${BASE_URL}/api/cart/add`, {
@@ -107,12 +119,18 @@ export const CartProvider = ({ children }) => {
         body: JSON.stringify(cartItem)
       });
       
+      console.log('📡 Response status:', response.status);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
       const data = await response.json();
       console.log('📥 Backend response:', data);
       
       if (data.success) {
         await loadCart(user._id);
-        toast.success('Added to cart');
+        toast.success(`${product.name} added to cart!`);
         return true;
       } else {
         console.error('❌ Backend error:', data.message);

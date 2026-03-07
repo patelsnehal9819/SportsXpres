@@ -14,7 +14,7 @@ import {
   Collapse,
   Badge,
   Chip,
-  Button,  // ← ADD THIS!
+  Button,
 } from '@mui/material';
 import {
   Menu as MenuIcon,
@@ -35,11 +35,12 @@ import {
   Login,
   AppRegistration,
   SmartToy,
+  Receipt as OrdersIcon,  // ← ADD THIS IMPORT
   ExpandLess,
   ExpandMore,
   Close,
 } from '@mui/icons-material';
-import { useNavigate } from 'react-router-dom';  // Remove 'Link' from here
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
@@ -262,7 +263,7 @@ const MobileNav = () => {
             {/* Starter Kit */}
             <ListItem disablePadding>
               <ListItemButton onClick={() => handleNavigation('/starter-kit')}>
-                <ListItemIcon><SportsCricket /></ListItemIcon>
+                <ListItemIcon><FitnessCenter /></ListItemIcon>
                 <ListItemText primary="Starter Kit" />
               </ListItemButton>
             </ListItem>
@@ -279,10 +280,10 @@ const MobileNav = () => {
                   </ListItemButton>
                 </ListItem>
 
-                {/* Orders */}
+                {/* ORDERS LINK - ADDED HERE */}
                 <ListItem disablePadding>
                   <ListItemButton onClick={() => handleNavigation('/orders')}>
-                    <ListItemIcon><ShoppingCart /></ListItemIcon>
+                    <ListItemIcon><OrdersIcon /></ListItemIcon>
                     <ListItemText primary="My Orders" />
                   </ListItemButton>
                 </ListItem>

@@ -32,10 +32,13 @@ import {
   Home,
   ArrowBack,
   CheckCircle,
+  Remove,
+  Add,
 } from '@mui/icons-material';
 import { useParams, useNavigate, Link as RouterLink } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
+import { productImages, DEFAULT_IMAGE } from '../utils/productImages'; // ✅ Import shared images
 import toast from 'react-hot-toast';
 
 const BASE_URL = 'https://solid-fishstick-7v74445764vj3pjgx-5000.app.github.dev';
@@ -46,71 +49,10 @@ const formatPrice = (price) => {
   return `₹${price.toLocaleString('en-IN')}`;
 };
 
-// Get different images based on product name/category
-const getProductImage = (product) => {
-  const name = product.name?.toLowerCase() || '';
-  const brand = product.brand?.toLowerCase() || '';
-  
-  // Cricket images
-  if (name.includes('cricket') || name.includes('bat') || name.includes('helmet') || 
-      name.includes('guard') || name.includes('pad') || name.includes('stump') ||
-      brand.includes('sg') || brand.includes('kookaburra') || brand.includes('masuri') ||
-      brand.includes('gray')) {
-    return 'https://images.unsplash.com/photo-1531415074968-036ba1b575da?w=500';
-  }
-  // Football images
-  else if (name.includes('football') || name.includes('soccer') || 
-           name.includes('predator') || name.includes('mercurial') ||
-           name.includes('germany') || name.includes('argentina') ||
-           name.includes('brazil') || name.includes('england') ||
-           name.includes('spain') || name.includes('france')) {
-    return 'https://images.unsplash.com/photo-1575361204480-aadea25e6e68?w=500';
-  }
-  // Basketball images
-  else if (name.includes('basketball') || name.includes('hoop') ||
-           name.includes('lebron') || name.includes('kyrie') ||
-           name.includes('lakers') || name.includes('bulls') ||
-           name.includes('nets') || name.includes('warriors') ||
-           name.includes('celtics') || name.includes('spalding')) {
-    return 'https://images.unsplash.com/photo-1546519638-68e109498ffc?w=500';
-  }
-  // Badminton images
-  else if (name.includes('badminton') || name.includes('yonex') || 
-           name.includes('shuttle') || name.includes('racket') ||
-           name.includes('li-ning') || name.includes('victor') ||
-           name.includes('aerosensa') || name.includes('astrox')) {
-    return 'https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=500';
-  }
-  // Gym & Fitness images
-  else if (name.includes('gym') || name.includes('dumbbell') || 
-           name.includes('kettlebell') || name.includes('bench') ||
-           name.includes('weight') || name.includes('mat') ||
-           name.includes('cockatoo') || name.includes('kore') ||
-           name.includes('bodymax') || name.includes('resistance')) {
-    return 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=500';
-  }
-  // Running & Shoes images
-  else if (name.includes('run') || name.includes('shoe') || 
-           name.includes('sock') || name.includes('belt') ||
-           name.includes('pegasus') || name.includes('ultraboost') ||
-           name.includes('asics') || name.includes('new balance')) {
-    return 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500';
-  }
-  // Bags & Accessories
-  else if (name.includes('bag') || name.includes('backpack') || 
-           name.includes('duffel') || name.includes('water bottle')) {
-    return 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=500';
-  }
-  // Default image
-  else {
-    return 'https://images.unsplash.com/photo-1531415074968-036ba1b575da?w=500';
-  }
-};
-
 const ProductDetail = () => {
   const { id } = useParams();
-  console.log('📌 Product ID from URL:', id); // ADD THIS LINE
-  console.log('📌 API URL:', `${BASE_URL}/api/products/${id}`); // ADD THIS LINE
+  console.log('📌 Product ID from URL:', id);
+  
   const navigate = useNavigate();
   const { addToCart } = useCart();
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
@@ -131,31 +73,69 @@ const ProductDetail = () => {
     setError(null);
     try {
       console.log('🔍 Fetching product details for ID:', id);
+      console.log('📌 API URL:', `${BASE_URL}/api/products/${id}`);
       
       const response = await fetch(`${BASE_URL}/api/products/${id}`);
-      const data = await response.json();
+      console.log('📡 Response status:', response.status);
       
+      if (!response.ok) {
+        if (response.status === 404) {
+          throw new Error('Product not found');
+        }
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
       console.log('📦 Product API Response:', data);
       
+      // Handle different response structures
+      let productData = null;
+      
       if (data.success && data.data) {
+        productData = data.data;
+      }
+      else if (data.data) {
+        productData = data.data;
+      }
+      else if (data.product) {
+        productData = data.product;
+      }
+      else if (data._id) {
+        productData = data;
+      }
+      else if (Array.isArray(data) && data.length > 0) {
+        productData = data[0];
+      }
+      
+      if (productData) {
+        // ✅ CRITICAL: Get image from shared productImages mapping
+        const productImage = productImages[productData.name] || DEFAULT_IMAGE;
+        
+        console.log('🖼️ Product name:', productData.name);
+        console.log('🖼️ Found image:', productImage);
+        
+        // Check stock status
+        const hasStock = productData.inStock !== false;
+        const stockQty = productData.stockQuantity || 10;
+        
         // Map the product data
-        const productData = {
-          _id: data.data._id,
-          name: data.data.name,
-          brand: data.data.brand || 'SportsXpress',
-          price: data.data.discountedPrice || data.data.price || 0,
-          originalPrice: data.data.originalPrice || data.data.price || 0,
-          discountPercentage: data.data.discountPercentage || 
-            (data.data.originalPrice && data.data.discountedPrice ? 
-              Math.round(((data.data.originalPrice - data.data.discountedPrice) / data.data.originalPrice) * 100) : 0),
-          rating: 4.5,
-          category: data.data.category || 'general',
-          description: data.data.description || 'No description available',
-          image: data.data.imageUrl || '',
-          inStock: data.data.inStock !== false,
-          stockQuantity: data.data.stockQuantity || 10,
-          offers: data.data.offers || ['Special offer available'],
-          features: data.data.features || [
+        const mappedProduct = {
+          _id: productData._id || id,
+          name: productData.name || 'Product Name',
+          brand: productData.brand || 'SportsXpress',
+          price: productData.discountedPrice || productData.price || 0,
+          originalPrice: productData.originalPrice || productData.mrp || productData.price || 0,
+          discountPercentage: productData.discountPercentage || 
+            (productData.originalPrice && productData.price ? 
+              Math.round(((productData.originalPrice - productData.price) / productData.originalPrice) * 100) : 0),
+          rating: productData.rating || 4.5,
+          category: productData.category || 'general',
+          description: productData.description || 'No description available',
+          image: productImage, // ✅ Use image from shared mapping
+          inStock: hasStock,
+          stockQuantity: stockQty,
+          offers: productData.offers || ['Special offer available'],
+          features: productData.features || [
             'Premium quality',
             'Official sports equipment',
             '1 year warranty',
@@ -163,14 +143,15 @@ const ProductDetail = () => {
           ]
         };
         
-        setProduct(productData);
-        console.log('✅ Product loaded:', productData.name);
+        setProduct(mappedProduct);
+        console.log('✅ Product loaded:', mappedProduct.name);
       } else {
+        console.error('❌ No product data found');
         setError('Product not found');
       }
     } catch (error) {
       console.error('❌ Error fetching product:', error);
-      setError('Failed to load product details');
+      setError(error.message || 'Failed to load product details');
     } finally {
       setLoading(false);
     }
@@ -179,13 +160,17 @@ const ProductDetail = () => {
   const handleAddToCart = () => {
     if (!product) return;
     
-    addToCart({
-      id: product._id,
+    const cartItem = {
+      _id: product._id,
       name: product.name,
+      brand: product.brand,
       price: product.price,
+      originalPrice: product.originalPrice,
       image: product.image,
       quantity: quantity
-    });
+    };
+    
+    addToCart(cartItem);
     toast.success(`${product.name} added to cart!`);
   };
 
@@ -221,16 +206,12 @@ const ProductDetail = () => {
   if (error || !product) {
     return (
       <Container sx={{ py: 4 }}>
-        <Alert 
-          severity="error"
-          action={
-            <Button color="inherit" size="small" onClick={() => navigate('/products')}>
-              Back to Products
-            </Button>
-          }
-        >
-          {error || 'Product not found'}
-        </Alert>
+        <Alert severity="error">{error || 'Product not found'}</Alert>
+        <Box sx={{ textAlign: 'center', mt: 4 }}>
+          <Button variant="contained" onClick={() => navigate('/products')} sx={{ bgcolor: '#fb641b' }}>
+            Browse Products
+          </Button>
+        </Box>
       </Container>
     );
   }
@@ -254,30 +235,31 @@ const ProductDetail = () => {
       </Breadcrumbs>
 
       {/* Back Button */}
-      <Button
-        startIcon={<ArrowBack />}
-        onClick={() => navigate(-1)}
-        sx={{ mb: 3 }}
-      >
+      <Button startIcon={<ArrowBack />} onClick={() => navigate(-1)} sx={{ mb: 3 }}>
         Back
       </Button>
 
       <Grid container spacing={4}>
-        {/* Product Image */}
+        {/* Product Image - THIS IS WHERE THE IMAGE SHOULD APPEAR */}
         <Grid item xs={12} md={6}>
           <Paper elevation={2} sx={{ p: 3, borderRadius: 2 }}>
             <Box
               sx={{
                 height: 400,
                 width: '100%',
-                backgroundImage: `url(${getProductImage(product)})`,
+                backgroundImage: `url(${product.image})`,
                 backgroundSize: 'contain',
                 backgroundPosition: 'center',
                 backgroundRepeat: 'no-repeat',
                 backgroundColor: '#f8f9fa',
-                borderRadius: 2
+                borderRadius: 2,
+                border: '1px solid #eee'
               }}
             />
+            {/* Debug info - remove after fixing */}
+            <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
+              Image URL: {product.image}
+            </Typography>
           </Paper>
         </Grid>
 
@@ -291,11 +273,7 @@ const ProductDetail = () => {
                   {product.brand}
                 </Typography>
                 <IconButton onClick={handleWishlistToggle}>
-                  {isInWishlist(product._id) ? (
-                    <Favorite sx={{ color: '#fb641b' }} />
-                  ) : (
-                    <FavoriteBorder />
-                  )}
+                  {isInWishlist(product._id) ? <Favorite sx={{ color: '#fb641b' }} /> : <FavoriteBorder />}
                 </IconButton>
               </Box>
 
@@ -310,12 +288,7 @@ const ProductDetail = () => {
                 <Typography variant="body2" color="text.secondary">
                   ({Math.floor(Math.random() * 100) + 50} reviews)
                 </Typography>
-                <Chip 
-                  icon={<Verified />} 
-                  label="Assured" 
-                  size="small" 
-                  sx={{ bgcolor: '#ffc107', ml: 1 }}
-                />
+                <Chip icon={<Verified />} label="Assured" size="small" sx={{ bgcolor: '#ffc107' }} />
               </Box>
 
               {/* Price Section */}
@@ -334,10 +307,7 @@ const ProductDetail = () => {
                       <Typography variant="h6" sx={{ textDecoration: 'line-through', color: '#999' }}>
                         {formatPrice(product.originalPrice)}
                       </Typography>
-                      <Chip 
-                        label={`${discount}% OFF`} 
-                        sx={{ bgcolor: '#ff4444', color: 'white', fontWeight: 'bold' }}
-                      />
+                      <Chip label={`${discount}% OFF`} sx={{ bgcolor: '#ff4444', color: 'white', fontWeight: 'bold' }} />
                     </>
                   )}
                 </Box>
@@ -374,32 +344,19 @@ const ProductDetail = () => {
                 <Typography variant="body2" sx={{ color: product.inStock ? '#00a650' : '#ff4444', fontWeight: 'bold' }}>
                   {product.inStock ? '✓ In Stock' : '✗ Out of Stock'}
                 </Typography>
-                {product.inStock && (
-                  <Typography variant="caption" color="text.secondary">
-                    Only {product.stockQuantity} items left
-                  </Typography>
-                )}
               </Box>
 
               {/* Quantity Selector */}
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
                 <Typography>Quantity:</Typography>
                 <Box sx={{ display: 'flex', alignItems: 'center', border: '1px solid #ddd', borderRadius: 1 }}>
-                  <Button 
-                    size="small" 
-                    onClick={() => handleQuantityChange(-1)}
-                    disabled={quantity <= 1}
-                  >
-                    -
-                  </Button>
+                  <IconButton size="small" onClick={() => handleQuantityChange(-1)} disabled={quantity <= 1}>
+                    <Remove />
+                  </IconButton>
                   <Typography sx={{ px: 2 }}>{quantity}</Typography>
-                  <Button 
-                    size="small" 
-                    onClick={() => handleQuantityChange(1)}
-                    disabled={quantity >= product.stockQuantity}
-                  >
-                    +
-                  </Button>
+                  <IconButton size="small" onClick={() => handleQuantityChange(1)} disabled={quantity >= product.stockQuantity}>
+                    <Add />
+                  </IconButton>
                 </Box>
               </Box>
 
@@ -412,51 +369,34 @@ const ProductDetail = () => {
                   onClick={handleAddToCart}
                   disabled={!product.inStock}
                   fullWidth
-                  sx={{ 
-                    bgcolor: '#fb641b',
-                    py: 1.5,
-                    '&:hover': { bgcolor: '#f4511e' }
-                  }}
+                  sx={{ bgcolor: '#fb641b', '&:hover': { bgcolor: '#f4511e' } }}
                 >
                   Add to Cart
                 </Button>
-                <Button
-                  variant="outlined"
-                  size="large"
-                  onClick={handleWishlistToggle}
-                  fullWidth
-                  sx={{ py: 1.5 }}
-                >
+                <Button variant="outlined" size="large" onClick={handleWishlistToggle} fullWidth>
                   {isInWishlist(product._id) ? 'Remove from Wishlist' : 'Save for Later'}
                 </Button>
               </Stack>
 
               {/* Features */}
               <Divider sx={{ my: 3 }} />
-              
               <Grid container spacing={2}>
                 <Grid item xs={4}>
                   <Box sx={{ textAlign: 'center' }}>
                     <Security sx={{ fontSize: 40, color: '#666' }} />
-                    <Typography variant="caption" display="block">
-                      1 Year Warranty
-                    </Typography>
+                    <Typography variant="caption" display="block">1 Year Warranty</Typography>
                   </Box>
                 </Grid>
                 <Grid item xs={4}>
                   <Box sx={{ textAlign: 'center' }}>
                     <LocalShipping sx={{ fontSize: 40, color: '#666' }} />
-                    <Typography variant="caption" display="block">
-                      Free Shipping
-                    </Typography>
+                    <Typography variant="caption" display="block">Free Shipping</Typography>
                   </Box>
                 </Grid>
                 <Grid item xs={4}>
                   <Box sx={{ textAlign: 'center' }}>
                     <Verified sx={{ fontSize: 40, color: '#666' }} />
-                    <Typography variant="caption" display="block">
-                      100% Authentic
-                    </Typography>
+                    <Typography variant="caption" display="block">100% Authentic</Typography>
                   </Box>
                 </Grid>
               </Grid>

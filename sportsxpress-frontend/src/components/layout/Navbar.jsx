@@ -22,6 +22,7 @@ import {
 import {
   Search as SearchIcon,
   ShoppingCart as CartIcon,
+  Favorite as WishlistIcon,
   SportsCricket as CricketIcon,
   SportsSoccer as FootballIcon,
   SportsTennis as BadmintonIcon,
@@ -36,12 +37,13 @@ import {
   ExpandMore,
   ExpandLess,
   Receipt as OrdersIcon,
-  Notifications as NotificationsIcon,  // ← ADD THIS IMPORT
+  Notifications as NotificationsIcon,
 } from '@mui/icons-material';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
-import { useNotifications } from '../../context/NotificationContext'; // ← ADD THIS IMPORT
+import { useWishlist } from '../../context/WishlistContext';
+import { useNotifications } from '../../context/NotificationContext';
 import MobileNav from './MobileNav';
 
 const Search = styled('div')(({ theme }) => ({
@@ -82,7 +84,8 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 const Navbar = () => {
   const { user, logout } = useAuth();
   const { getCartCount } = useCart();
-  const { notifications } = useNotifications(); // ← GET NOTIFICATIONS COUNT
+  const { wishlistItems } = useWishlist();
+  const { notifications } = useNotifications();
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [anchorEl, setAnchorEl] = useState(null);
@@ -107,6 +110,8 @@ const Navbar = () => {
   const handleMenuOpen = (event) => setAnchorEl(event.currentTarget);
   const handleMenuClose = () => setAnchorEl(null);
   const handleLogout = () => { logout(); handleMenuClose(); navigate('/'); };
+
+  const wishlistCount = wishlistItems?.length || 0;
 
   return (
     <AppBar position="sticky" sx={{ bgcolor: '#1976d2' }}>
@@ -145,25 +150,30 @@ const Navbar = () => {
           <Button color="inherit" component={Link} to="/sports-shoes" startIcon={<ShoesIcon />} sx={{ mx: 0.5, fontWeight: 500 }}>Shoes</Button>
           <Button color="inherit" component={Link} to="/medical-kits" startIcon={<MedicalIcon />} sx={{ mx: 0.5, fontWeight: 500 }}>Medical</Button>
 
-          {/* NOTIFICATION BUTTON - ADD THIS */}
+          {/* WISHLIST BUTTON */}
+          <IconButton color="inherit" component={Link} to="/wishlist" sx={{ ml: 1 }}>
+            <Badge badgeContent={wishlistCount} color="error">
+              <WishlistIcon />
+            </Badge>
+          </IconButton>
+
+          {/* ORDERS BUTTON - ONE BUTTON HERE (BETWEEN WISHLIST AND NOTIFICATIONS) */}
+          <Button 
+            color="inherit" 
+            component={Link} 
+            to="/orders" 
+            startIcon={<OrdersIcon />} 
+            sx={{ mx: 0.5, fontWeight: 500 }}
+          >
+            Orders
+          </Button>
+
+          {/* NOTIFICATION BUTTON */}
           <IconButton color="inherit" component={Link} to="/notifications" sx={{ ml: 1 }}>
             <Badge badgeContent={notifications.length} color="error">
               <NotificationsIcon />
             </Badge>
           </IconButton>
-
-          {/* ORDERS BUTTON - VISIBLE WHEN LOGGED IN */}
-          {user && (
-            <Button 
-              color="inherit" 
-              component={Link} 
-              to="/orders" 
-              startIcon={<OrdersIcon />} 
-              sx={{ mx: 0.5, fontWeight: 500 }}
-            >
-              Orders
-            </Button>
-          )}
 
           <IconButton color="inherit" component={Link} to="/cart" sx={{ ml: 1 }}>
             <Badge badgeContent={getCartCount()} color="error"><CartIcon /></Badge>
@@ -192,8 +202,9 @@ const Navbar = () => {
               </Box>
               <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
                 <MenuItem component={Link} to="/profile" onClick={handleMenuClose}><PersonIcon sx={{ mr: 1 }} /> Profile</MenuItem>
-                <MenuItem component={Link} to="/notifications" onClick={handleMenuClose}><NotificationsIcon sx={{ mr: 1 }} /> Notifications</MenuItem>
+                <MenuItem component={Link} to="/wishlist" onClick={handleMenuClose}><WishlistIcon sx={{ mr: 1 }} /> Wishlist ({wishlistCount})</MenuItem>
                 <MenuItem component={Link} to="/orders" onClick={handleMenuClose}><OrdersIcon sx={{ mr: 1 }} /> My Orders</MenuItem>
+                <MenuItem component={Link} to="/notifications" onClick={handleMenuClose}><NotificationsIcon sx={{ mr: 1 }} /> Notifications</MenuItem>
                 <MenuItem onClick={handleLogout}>Logout</MenuItem>
               </Menu>
             </>

@@ -61,27 +61,63 @@ const StarterKit = () => {
 
   const sportImages = {
     cricket: 'https://images.unsplash.com/photo-1531415074968-036ba1b575da?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-    football: 'https://images.unsplash.com/photo-1575361204480-a5d5b7f1f7d9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-    badminton: 'https://images.unsplash.com/photo-1626224583764-f87db24ac4e2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+    football: 'https://images.pexels.com/photos/274506/pexels-photo-274506.jpeg',
+    badminton: 'https://images.pexels.com/photos/8007075/pexels-photo-8007075.jpeg',
     basketball: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
     gym: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
     running: 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
   };
 
   const cricketImages = {
-    bat: 'https://images.unsplash.com/photo-1624526267942-ab0ff8a3e972?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-    ball: 'https://images.unsplash.com/photo-1624526267942-ab0ff8a3e972?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-    pads: 'https://images.unsplash.com/photo-1624526267942-ab0ff8a3e972?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-    gloves: 'https://images.unsplash.com/photo-1624526267942-ab0ff8a3e972?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-    helmet: 'https://images.unsplash.com/photo-1624526267942-ab0ff8a3e972?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-    bag: 'https://images.unsplash.com/photo-1624526267942-ab0ff8a3e972?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+    bat: 'https://images.pexels.com/photos/35825599/pexels-photo-35825599.jpeg',
+    ball: 'https://images.pexels.com/photos/30401506/pexels-photo-30401506.jpeg',
+    pads: 'https://images.pexels.com/photos/29463867/pexels-photo-29463867.jpeg',
+    gloves: 'https://images.pexels.com/photos/31096662/pexels-photo-31096662.jpeg',
+    helmet: 'https://images.pexels.com/photos/30401163/pexels-photo-30401163.jpeg',
+    bag: 'https://images.pexels.com/photos/27914830/pexels-photo-27914830.jpeg',
   };
 
   const footballImages = {
-    ball: 'https://images.unsplash.com/photo-1614632537190-5a2d9b63c2c0?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-    shoes: 'https://images.unsplash.com/photo-1511886929837-354d827aae26?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+    ball: 'https://images.pexels.com/photos/3621104/pexels-photo-3621104.jpeg',
+    shoes: 'https://images.pexels.com/photos/7188095/pexels-photo-7188095.jpeg',
     guards: 'https://images.unsplash.com/photo-1575361204480-a5d5b7f1f7d9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-    jersey: 'https://images.unsplash.com/photo-1575361204480-a5d5b7f1f7d9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+    jersey: 'https://images.pexels.com/photos/35162974/pexels-photo-35162974.jpeg',
+  };
+
+  // ========== FIXED: Badminton Images with working URLs ==========
+  const badmintonImages = {
+    racket: 'https://images.pexels.com/photos/6307230/pexels-photo-6307230.jpeg',
+    shuttle: 'https://images.pexels.com/photos/8007408/pexels-photo-8007408.jpeg',
+    shoes: 'https://images.pexels.com/photos/8007173/pexels-photo-8007173.jpeg',
+    grip: 'https://images.pexels.com/photos/29873463/pexels-photo-29873463.jpeg',
+    bag: 'https://images.pexels.com/photos/33307140/pexels-photo-33307140.jpeg',
+  };
+
+  // ========== FIXED: Basketball Images with working URLs ==========
+  const basketballImages = {
+    ball: 'https://images.pexels.com/photos/1752757/pexels-photo-1752757.jpeg?auto=compress&cs=tinysrgb&w=600',
+    shoes: 'https://images.pexels.com/photos/2923624/pexels-photo-2923624.jpeg?auto=compress&cs=tinysrgb&w=600',
+    jersey: 'https://images.pexels.com/photos/1198168/pexels-photo-1198168.jpeg',
+    hoop: 'https://images.pexels.com/photos/171571/pexels-photo-171571.jpeg?auto=compress&cs=tinysrgb&w=600',
+    bag: 'https://images.pexels.com/photos/27914830/pexels-photo-27914830.jpeg?auto=compress&cs=tinysrgb&w=600',
+  };
+
+  // ========== FIXED: Gym Images with working URLs ==========
+  const gymImages = {
+    dumbbells: 'https://images.pexels.com/photos/841130/pexels-photo-841130.jpeg?auto=compress&cs=tinysrgb&w=600',
+    bench: 'https://images.pexels.com/photos/416809/pexels-photo-416809.jpeg?auto=compress&cs=tinysrgb&w=600',
+    mat: 'https://images.pexels.com/photos/4325462/pexels-photo-4325462.jpeg?auto=compress&cs=tinysrgb&w=600',
+    gloves: 'https://images.pexels.com/photos/5384570/pexels-photo-5384570.jpeg?auto=compress&cs=tinysrgb&w=600',
+    bag: 'https://images.pexels.com/photos/27914830/pexels-photo-27914830.jpeg?auto=compress&cs=tinysrgb&w=600',
+  };
+
+  // ========== FIXED: Running Images with working URLs ==========
+  const runningImages = {
+    shoes: 'https://images.pexels.com/photos/2529148/pexels-photo-2529148.jpeg?auto=compress&cs=tinysrgb&w=600',
+    shorts: 'https://images.pexels.com/photos/8180657/pexels-photo-8180657.jpeg?auto=compress&cs=tinysrgb&w=600',
+    bottle: 'https://images.pexels.com/photos/593099/pexels-photo-593099.jpeg?auto=compress&cs=tinysrgb&w=600',
+    belt: 'https://images.pexels.com/photos/9687152/pexels-photo-9687152.jpeg?auto=compress&cs=tinysrgb&w=600',
+    cap: 'https://images.pexels.com/photos/9558758/pexels-photo-9558758.jpeg?auto=compress&cs=tinysrgb&w=600',
   };
 
   const sports = [
@@ -180,10 +216,190 @@ const StarterKit = () => {
     ]
   };
 
+  // ========== Badminton Kits ==========
+  const badmintonKits = {
+    beginner: [
+      {
+        name: 'Badminton Starter Kit',
+        price: 3499,
+        image: badmintonImages.racket,
+        items: [
+          { name: 'Badminton Racket', price: 1299, image: badmintonImages.racket },
+          { name: 'Shuttlecocks (6)', price: 599, image: badmintonImages.shuttle },
+          { name: 'Badminton Shoes', price: 1599, image: badmintonImages.shoes },
+        ]
+      }
+    ],
+    intermediate: [
+      {
+        name: 'Pro Badminton Kit',
+        price: 8999,
+        image: badmintonImages.racket,
+        items: [
+          { name: 'Pro Racket', price: 3499, image: badmintonImages.racket },
+          { name: 'Tournament Shuttles', price: 999, image: badmintonImages.shuttle },
+          { name: 'Pro Shoes', price: 2999, image: badmintonImages.shoes },
+          { name: 'Grip & Accessories', price: 499, image: badmintonImages.grip },
+          { name: 'Racket Bag', price: 999, image: badmintonImages.bag },
+        ]
+      }
+    ],
+    advanced: [
+      {
+        name: 'Elite Badminton Kit',
+        price: 17999,
+        image: badmintonImages.racket,
+        items: [
+          { name: 'Carbon Fiber Racket', price: 6999, image: badmintonImages.racket },
+          { name: 'Premium Shuttles', price: 1499, image: badmintonImages.shuttle },
+          { name: 'Elite Shoes', price: 4999, image: badmintonImages.shoes },
+          { name: 'Pro Grip Set', price: 999, image: badmintonImages.grip },
+          { name: 'Tournament Bag', price: 1999, image: badmintonImages.bag },
+        ]
+      }
+    ]
+  };
+
+  // ========== Basketball Kits ==========
+  const basketballKits = {
+    beginner: [
+      {
+        name: 'Basketball Starter Kit',
+        price: 3999,
+        image: basketballImages.ball,
+        items: [
+          { name: 'Basketball', price: 1499, image: basketballImages.ball },
+          { name: 'Basketball Shoes', price: 1999, image: basketballImages.shoes },
+          { name: 'Jersey Set', price: 499, image: basketballImages.jersey },
+        ]
+      }
+    ],
+    intermediate: [
+      {
+        name: 'Pro Basketball Kit',
+        price: 9999,
+        image: basketballImages.ball,
+        items: [
+          { name: 'Pro Basketball', price: 2999, image: basketballImages.ball },
+          { name: 'Pro Shoes', price: 3999, image: basketballImages.shoes },
+          { name: 'Pro Jersey', price: 1499, image: basketballImages.jersey },
+          { name: 'Ankle Braces', price: 999, image: basketballImages.shoes },
+          { name: 'Sports Bag', price: 499, image: basketballImages.bag },
+        ]
+      }
+    ],
+    advanced: [
+      {
+        name: 'Elite Basketball Kit',
+        price: 19999,
+        image: basketballImages.ball,
+        items: [
+          { name: 'NBA Official Ball', price: 4999, image: basketballImages.ball },
+          { name: 'Signature Shoes', price: 6999, image: basketballImages.shoes },
+          { name: 'Team Jersey', price: 2999, image: basketballImages.jersey },
+          { name: 'Knee Pads', price: 1999, image: basketballImages.hoop },
+          { name: 'Premium Bag', price: 1999, image: basketballImages.bag },
+        ]
+      }
+    ]
+  };
+
+  // ========== Gym Kits ==========
+  const gymKits = {
+    beginner: [
+      {
+        name: 'Gym Starter Kit',
+        price: 4499,
+        image: gymImages.dumbbells,
+        items: [
+          { name: 'Dumbbell Set (5kg)', price: 1999, image: gymImages.dumbbells },
+          { name: 'Yoga Mat', price: 999, image: gymImages.mat },
+          { name: 'Gym Gloves', price: 499, image: gymImages.gloves },
+          { name: 'Resistance Bands', price: 999, image: gymImages.dumbbells },
+        ]
+      }
+    ],
+    intermediate: [
+      {
+        name: 'Pro Gym Kit',
+        price: 12999,
+        image: gymImages.dumbbells,
+        items: [
+          { name: 'Adjustable Dumbbells', price: 4999, image: gymImages.dumbbells },
+          { name: 'Weight Bench', price: 3999, image: gymImages.bench },
+          { name: 'Premium Mat', price: 1499, image: gymImages.mat },
+          { name: 'Pro Gloves', price: 999, image: gymImages.gloves },
+          { name: 'Gym Bag', price: 1499, image: gymImages.bag },
+        ]
+      }
+    ],
+    advanced: [
+      {
+        name: 'Elite Gym Kit',
+        price: 24999,
+        image: gymImages.dumbbells,
+        items: [
+          { name: 'Full Dumbbell Set', price: 8999, image: gymImages.dumbbells },
+          { name: 'Pro Bench Press', price: 6999, image: gymImages.bench },
+          { name: 'Premium Mat', price: 1999, image: gymImages.mat },
+          { name: 'Pro Gloves', price: 1499, image: gymImages.gloves },
+          { name: 'Premium Gym Bag', price: 1999, image: gymImages.bag },
+        ]
+      }
+    ]
+  };
+
+  // ========== Running Kits ==========
+  const runningKits = {
+    beginner: [
+      {
+        name: 'Running Starter Kit',
+        price: 3999,
+        image: runningImages.shoes,
+        items: [
+          { name: 'Running Shoes', price: 2499, image: runningImages.shoes },
+          { name: 'Running Shorts', price: 799, image: runningImages.shorts },
+          { name: 'Water Bottle', price: 699, image: runningImages.bottle },
+        ]
+      }
+    ],
+    intermediate: [
+      {
+        name: 'Pro Running Kit',
+        price: 8999,
+        image: runningImages.shoes,
+        items: [
+          { name: 'Pro Running Shoes', price: 4999, image: runningImages.shoes },
+          { name: 'Pro Shorts', price: 1499, image: runningImages.shorts },
+          { name: 'Hydration Belt', price: 1299, image: runningImages.belt },
+          { name: 'Running Cap', price: 1199, image: runningImages.cap },
+        ]
+      }
+    ],
+    advanced: [
+      {
+        name: 'Elite Running Kit',
+        price: 17999,
+        image: runningImages.shoes,
+        items: [
+          { name: 'Elite Running Shoes', price: 8999, image: runningImages.shoes },
+          { name: 'Pro Shorts', price: 1999, image: runningImages.shorts },
+          { name: 'Premium Hydration Pack', price: 2999, image: runningImages.belt },
+          { name: 'Pro Cap', price: 1499, image: runningImages.cap },
+          { name: 'GPS Watch', price: 2499, image: runningImages.bottle },
+        ]
+      }
+    ]
+  };
+
   const getKitsForSport = () => {
     switch(selectedSport) {
       case 'cricket': return cricketKits;
       case 'football': return footballKits;
+      case 'badminton': return badmintonKits;
+      case 'basketball': return basketballKits;
+      case 'gym': return gymKits;
+      case 'running': return runningKits;
       default: return cricketKits;
     }
   };
@@ -270,7 +486,6 @@ const StarterKit = () => {
     toast.success(`${kit.name} selected!`);
   };
 
-  // ========== UPDATED: handleAddToCart with proper _id ==========
   const handleAddToCart = async () => {
     if (customizedKit.length === 0) {
       toast.error('Please select a kit first');
@@ -280,13 +495,12 @@ const StarterKit = () => {
     const kitTotal = customizedKit.reduce((sum, item) => sum + item.price, 0);
     const sportName = sports.find(s => s.id === selectedSport)?.name || '';
     
-    // IMPORTANT: Use _id instead of id for cart context
     const kitProduct = {
-      _id: `kit-${Date.now()}`,  // Add _id field
-      id: `kit-${Date.now()}`,    // Keep id for compatibility
+      _id: `kit-${Date.now()}`,
+      id: `kit-${Date.now()}`,
       name: `${sportName} ${skillLevel} Kit`,
       price: kitTotal,
-      quantity: 1,  // Add quantity
+      quantity: 1,
       items: customizedKit,
       sport: selectedSport,
       category: 'kit',
@@ -296,14 +510,11 @@ const StarterKit = () => {
 
     console.log('🛒 Adding kit to cart:', kitProduct);
 
-    // Save to backend first
     const saved = await saveKitToBackend();
     
-    // Add to cart
     addToCart(kitProduct);
     toast.success('Starter kit added to cart!');
     
-    // Navigate to cart after short delay
     setTimeout(() => {
       navigate('/cart');
     }, 500);
