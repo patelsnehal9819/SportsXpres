@@ -20,9 +20,6 @@ import { loadAllProducts } from './data/sportProducts';
 import Home from './pages/Home';
 import Products from './pages/Products';
 import SportCategory from './pages/SportCategory';
-import SportsShoes from './pages/SportsShoes';
-import SportsJersey from './pages/SportsJersey';
-import MedicalKits from './pages/MedicalKits';
 import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 import Login from './pages/Login';
@@ -74,9 +71,6 @@ function App() {
                     <Route path="/products" element={<Products />} />
                     <Route path="/sport/:category" element={<SportCategory />} />
                     <Route path="/products/:id" element={<ProductDetail />} />
-                    <Route path="/sports-shoes" element={<SportsShoes />} />
-                    <Route path="/sports-jersey" element={<SportsJersey />} />
-                    <Route path="/medical-kits" element={<MedicalKits />} />
                     <Route path="/cart" element={<Cart />} />
                     <Route path="/checkout" element={<Checkout />} />
                     <Route path="/order-confirmation/:orderId" element={<OrderConfirmation />} />
@@ -91,7 +85,6 @@ function App() {
                     <Route path="/admin/add-product" element={<AdminAddProduct />} />
                     <Route path="/sports-page" element={<SportsPage />} />
                     <Route path="/feedback/:orderId" element={<FeedbackPage />} />
-                    <Route path="/orders" element={<OrdersPage />} />
                     <Route path="/notifications" element={<Notifications />} />
                     <Route path="*" element={<NotFound />} />
                   </Routes>

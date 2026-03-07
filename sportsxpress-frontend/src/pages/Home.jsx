@@ -18,41 +18,65 @@ const Home = () => {
 
   const mostViewedProducts = [
     { 
-      _id: '69a97bc66a9f0a6d69379931', // SG Test Cricket Bat
-      name: 'SG Test Cricket Bat', 
+      _id: '69ab37950f7056b684d87a72', // SG Abdomen Guard
+      name: 'SG Abdomen Guard', 
       brand: 'SG', 
-      price: 5499, 
+      price: 699, 
+      originalPrice: 867,
       rating: 4.5, 
-      image: 'https://images.unsplash.com/photo-1624526267942-ab0ff8a3e972?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', 
+      image: 'https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=500', 
       views: 2345 
     },
     { 
-      _id: '69a97bc66a9f0a6d6937994f', // Nike Mercurial Superfly
-      name: 'Nike Mercurial Superfly', 
-      brand: 'Nike', 
-      price: 12999, 
+      _id: '69ab37950f7056b684d87a73', // Masuri Cricket Helmet
+      name: 'Masuri Cricket Helmet', 
+      brand: 'Masuri', 
+      price: 3999, 
+      originalPrice: 5079,
       rating: 4.9, 
-      image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', 
+      image: 'https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=500', 
       views: 1890 
     },
     { 
-      _id: '69a97bc66a9f0a6d6937996d', // Yonex Astrox 100 ZZ
-      name: 'Yonex Astrox 100 ZZ', 
-      brand: 'Yonex', 
-      price: 18999, 
-      rating: 4.9, 
-      image: 'https://images.unsplash.com/photo-1626224583764-f87db24ac4e2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', 
+      _id: '69ab37950f7056b684d87a74', // Select Brillant Ball
+      name: 'Select Brillant Ball', 
+      brand: 'Select', 
+      price: 2499, 
+      originalPrice: 3499,
+      rating: 4.8, 
+      image: 'https://images.unsplash.com/photo-1575361204480-aadea25e6e68?w=500', 
       views: 1567 
     },
     { 
-      _id: '69a97bc66a9f0a6d6937998d', // Spalding NBA Basketball
-      name: 'Spalding NBA Basketball', 
-      brand: 'Spalding', 
-      price: 3999, 
-      rating: 4.9, 
-      image: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', 
+      _id: '69ab37950f7056b684d87a75', // Adidas Backpack
+      name: 'Adidas Backpack', 
+      brand: 'Adidas', 
+      price: 2999, 
+      originalPrice: 3999,
+      rating: 4.7, 
+      image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=500', 
       views: 1432 
     },
+    { 
+      _id: '69ab37950f7056b684d87a76', // Li-Ning Shuttlecocks
+      name: 'Li-Ning Shuttlecocks', 
+      brand: 'Li-Ning', 
+      price: 399, 
+      originalPrice: 599,
+      rating: 4.6, 
+      image: 'https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=500', 
+      views: 1234 
+    },
+    { 
+      _id: '69ab37950f7056b684d87a77', // Nike Elite Basketball
+      name: 'Nike Elite Basketball', 
+      brand: 'Nike', 
+      price: 3499, 
+      originalPrice: 4499,
+      rating: 4.8, 
+      image: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?w=500', 
+      views: 1123 
+    }
   ];
 
   const sportsCategories = [
@@ -60,7 +84,7 @@ const Home = () => {
     { name: 'Football', icon: '⚽', color: '#2196F3', path: '/sport/football' },
     { name: 'Badminton', icon: '🏸', color: '#FF9800', path: '/sport/badminton' },
     { name: 'Basketball', icon: '🏀', color: '#F44336', path: '/sport/basketball' },
-    { name: 'Gym', icon: '🏋️', color: '#9C27B0', path: '/sport/gym' },
+    { name: 'Gym', icon: '🏋️', color: '#9C27B0', path: '/sport/gym-fitness' },
     { name: 'Running', icon: '🏃', color: '#00BCD4', path: '/sport/running' },
   ];
 
@@ -175,6 +199,12 @@ const Home = () => {
                 display: 'flex',
                 flexDirection: 'column',
                 borderRadius: 2,
+                cursor: 'pointer',
+                transition: 'transform 0.2s',
+                '&:hover': {
+                  transform: 'translateY(-4px)',
+                  boxShadow: 3
+                }
               }}
             >
               <CardMedia
@@ -197,8 +227,16 @@ const Home = () => {
                     {product.rating}
                   </Typography>
                 </Box>
-                <Typography variant="body2" color="primary.main" fontWeight="bold">
-                  {formatINR(product.price)}
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                  <Typography variant="caption" sx={{ textDecoration: 'line-through', color: '#999' }}>
+                    {formatINR(product.originalPrice)}
+                  </Typography>
+                  <Typography variant="body2" color="primary.main" fontWeight="bold">
+                    {formatINR(product.price)}
+                  </Typography>
+                </Box>
+                <Typography variant="caption" color="success.main" sx={{ display: 'block', mt: 0.5 }}>
+                  {product.views.toLocaleString()} views
                 </Typography>
               </CardContent>
             </Card>

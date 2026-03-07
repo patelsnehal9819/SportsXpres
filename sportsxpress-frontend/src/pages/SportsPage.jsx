@@ -1,129 +1,133 @@
 import React from 'react';
 import {
-  Box,
-  Paper,
-  Typography,
+  Container,
   Grid,
   Card,
   CardContent,
-  CardMedia,
+  Typography,
   Button,
+  Box,
+  CardMedia,
+  Chip,
 } from '@mui/material';
-import {
-  SportsCricket,
-  SportsSoccer,
-  SportsTennis,
-  FitnessCenter,
-  SportsBasketball,
-  DirectionsRun,
-  ArrowForward,
-} from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
+
+const sports = [
+  {
+    id: 'cricket',
+    name: 'Cricket',
+    image: 'https://images.unsplash.com/photo-1531415074968-036ba1b575da?w=500',
+    description: 'Bats, balls, helmets, pads, and all cricket equipment',
+    productCount: '45+ products'
+  },
+  {
+    id: 'football',
+    name: 'Football',
+    image: 'https://images.unsplash.com/photo-1575361204480-aadea25e6e68?w=500',
+    description: 'Boots, jerseys, balls, gloves, and training gear',
+    productCount: '38+ products'
+  },
+  {
+    id: 'basketball',
+    name: 'Basketball',
+    image: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?w=500',
+    description: 'Shoes, jerseys, balls, hoops, and accessories',
+    productCount: '32+ products'
+  },
+  {
+    id: 'badminton',
+    name: 'Badminton',
+    image: 'https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=500',
+    description: 'Rackets, shuttlecocks, nets, grips, and shoes',
+    productCount: '28+ products'
+  },
+  {
+    id: 'gym-fitness',
+    name: 'Gym & Fitness',
+    image: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=500',
+    description: 'Dumbbells, kettlebells, benches, mats, and more',
+    productCount: '52+ products'
+  },
+  {
+    id: 'running',
+    name: 'Running',
+    image: 'https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?w=500',
+    description: 'Shoes, shorts, shirts, hydration packs, and gear',
+    productCount: '30+ products'
+  }
+];
 
 const SportsPage = () => {
   const navigate = useNavigate();
 
-  const sports = [
-    { 
-      id: 'cricket', 
-      name: 'Cricket', 
-      icon: <SportsCricket />, 
-      color: '#4CAF50',
-      image: 'https://images.unsplash.com/photo-1531415074968-036ba1b575da?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-      description: 'Bats, balls, pads, gloves & more'
-    },
-    { 
-      id: 'football', 
-      name: 'Football', 
-      icon: <SportsSoccer />, 
-      color: '#2196F3',
-      image: 'https://images.unsplash.com/photo-1575361204480-a5d5b7f1f7d9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-      description: 'Boots, jerseys, balls, accessories'
-    },
-    { 
-      id: 'badminton', 
-      name: 'Badminton', 
-      icon: <SportsTennis />, 
-      color: '#FF9800',
-      image: 'https://images.unsplash.com/photo-1626224583764-f87db24ac4e2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-      description: 'Rackets, shuttlecocks, nets, shoes'
-    },
-    { 
-      id: 'basketball', 
-      name: 'Basketball', 
-      icon: <SportsBasketball />, 
-      color: '#F44336',
-      image: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-      description: 'Balls, shoes, jerseys, hoops'
-    },
-    { 
-      id: 'gym', 
-      name: 'Gym & Fitness', 
-      icon: <FitnessCenter />, 
-      color: '#9C27B0',
-      image: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-      description: 'Dumbbells, benches, accessories'
-    },
-    { 
-      id: 'running', 
-      name: 'Running', 
-      icon: <DirectionsRun />, 
-      color: '#00BCD4',
-      image: 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-      description: 'Shoes, shorts, shirts, gear'
-    },
-  ];
+  const handleSportClick = (sportId) => {
+    navigate(`/sport/${sportId}`);
+  };
 
   return (
-    <Box sx={{ p: 2 }}>
-      {/* Header */}
-      <Paper sx={{ p: 2, borderRadius: 2, mb: 2, bgcolor: '#1976d2', color: 'white' }}>
-        <Typography variant="h6" fontWeight="bold">All Sports</Typography>
-        <Typography variant="body2">Choose your sport to explore equipment</Typography>
-      </Paper>
+    <Container maxWidth="lg" sx={{ py: 4 }}>
+      <Typography variant="h3" component="h1" gutterBottom align="center" sx={{ mb: 4 }}>
+        Sports Categories
+      </Typography>
+      <Typography variant="h6" align="center" color="text.secondary" sx={{ mb: 6 }}>
+        Choose your sport and explore our wide range of equipment
+      </Typography>
 
-      {/* Sports Grid */}
-      <Grid container spacing={2}>
+      <Grid container spacing={3}>
         {sports.map((sport) => (
-          <Grid item xs={12} key={sport.id}>
+          <Grid item xs={12} sm={6} md={4} lg={4} key={sport.id}>
             <Card 
               sx={{ 
+                height: '100%',
                 display: 'flex',
-                borderRadius: 2,
+                flexDirection: 'column',
                 cursor: 'pointer',
-                '&:hover': { transform: 'scale(1.02)', transition: '0.2s' }
+                transition: 'transform 0.3s, box-shadow 0.3s',
+                '&:hover': {
+                  transform: 'translateY(-8px)',
+                  boxShadow: 10
+                }
               }}
-              onClick={() => navigate(`/sport/${sport.id}`)}
+              onClick={() => handleSportClick(sport.id)}
             >
               <CardMedia
                 component="img"
-                sx={{ width: 120, height: 120, objectFit: 'cover' }}
+                height="180"
                 image={sport.image}
                 alt={sport.name}
+                sx={{ objectFit: 'cover' }}
               />
-              <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1, p: 2 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                  <Box sx={{ color: sport.color, mr: 1 }}>{sport.icon}</Box>
-                  <Typography variant="subtitle1" fontWeight="bold">
-                    {sport.name}
-                  </Typography>
-                </Box>
+              <CardContent sx={{ flexGrow: 1 }}>
+                <Typography gutterBottom variant="h5" component="h2">
+                  {sport.name}
+                </Typography>
                 <Typography variant="body2" color="text.secondary" paragraph>
                   {sport.description}
                 </Typography>
-                <Button 
-                  size="small" 
-                  endIcon={<ArrowForward />}
-                  sx={{ alignSelf: 'flex-start', color: sport.color }}
-                >
-                  Shop Now
-                </Button>
-              </Box>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 2 }}>
+                  <Chip 
+                    label={sport.productCount} 
+                    size="small" 
+                    color="primary" 
+                    variant="outlined"
+                  />
+                  <Button 
+                    size="small" 
+                    color="primary"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleSportClick(sport.id);
+                    }}
+                  >
+                    Shop Now
+                  </Button>
+                </Box>
+              </CardContent>
             </Card>
           </Grid>
         ))}
       </Grid>
-    </Box>
+    </Container>
   );
 };
 
