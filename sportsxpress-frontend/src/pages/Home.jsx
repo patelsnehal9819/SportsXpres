@@ -16,9 +16,10 @@ import { formatINR } from '../utils/currencyFormatter';
 const Home = () => {
   const { user, getWelcomeMessage } = useAuth();
 
+  // Most Viewed Products with CORRECT IDs from database
   const mostViewedProducts = [
     { 
-      _id: '69ab37950f7056b684d87a72', // SG Abdomen Guard
+      _id: '69abed25fc69d3e5e7e140ef', // SG Abdomen Guard
       name: 'SG Abdomen Guard', 
       brand: 'SG', 
       price: 699, 
@@ -28,17 +29,17 @@ const Home = () => {
       views: 2345 
     },
     { 
-      _id: '69ab37950f7056b684d87a73', // Masuri Cricket Helmet
+      _id: '69abed25fc69d3e5e7e140f1', // Masuri Cricket Helmet
       name: 'Masuri Cricket Helmet', 
       brand: 'Masuri', 
       price: 3999, 
       originalPrice: 5079,
       rating: 4.9, 
-      image: 'https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=500', 
+      image: 'https://images.pexels.com/photos/30401163/pexels-photo-30401163.jpeg', 
       views: 1890 
     },
     { 
-      _id: '69ab37950f7056b684d87a74', // Select Brillant Ball
+      _id: '69abed25fc69d3e5e7e140f3', // Select Brillant Ball
       name: 'Select Brillant Ball', 
       brand: 'Select', 
       price: 2499, 
@@ -48,7 +49,7 @@ const Home = () => {
       views: 1567 
     },
     { 
-      _id: '69ab37950f7056b684d87a75', // Adidas Backpack
+      _id: '69abed25fc69d3e5e7e140f5', // Adidas Backpack
       name: 'Adidas Backpack', 
       brand: 'Adidas', 
       price: 2999, 
@@ -58,7 +59,7 @@ const Home = () => {
       views: 1432 
     },
     { 
-      _id: '69ab37950f7056b684d87a76', // Li-Ning Shuttlecocks
+      _id: '69abed25fc69d3e5e7e140f7', // Li-Ning Shuttlecocks
       name: 'Li-Ning Shuttlecocks', 
       brand: 'Li-Ning', 
       price: 399, 
@@ -68,7 +69,7 @@ const Home = () => {
       views: 1234 
     },
     { 
-      _id: '69ab37950f7056b684d87a77', // Nike Elite Basketball
+      _id: '69abed25fc69d3e5e7e140f9', // Nike Elite Basketball
       name: 'Nike Elite Basketball', 
       brand: 'Nike', 
       price: 3499, 
@@ -188,60 +189,92 @@ const Home = () => {
         🔥 Most Viewed
       </Typography>
       <Grid container spacing={2} sx={{ mb: 4 }}>
-        {mostViewedProducts.map((product) => (
-          <Grid item xs={6} key={product._id}>
-            <Card 
-              component={Link}
-              to={`/products/${product._id}`}
-              sx={{ 
-                textDecoration: 'none',
-                height: '100%',
-                display: 'flex',
-                flexDirection: 'column',
-                borderRadius: 2,
-                cursor: 'pointer',
-                transition: 'transform 0.2s',
-                '&:hover': {
-                  transform: 'translateY(-4px)',
-                  boxShadow: 3
-                }
-              }}
-            >
-              <CardMedia
-                component="img"
-                height="140"
-                image={product.image}
-                alt={product.name}
-                sx={{ objectFit: 'cover' }}
-              />
-              <CardContent sx={{ p: 1.5 }}>
-                <Typography variant="caption" color="text.secondary">
-                  {product.brand}
-                </Typography>
-                <Typography variant="body2" sx={{ fontWeight: 600, mb: 0.5 }} noWrap>
-                  {product.name}
-                </Typography>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-                  <Rating value={product.rating} size="small" readOnly />
-                  <Typography variant="caption" sx={{ ml: 0.5 }}>
-                    {product.rating}
+        {mostViewedProducts.map((product) => {
+          // Calculate discount percentage
+          const discount = product.originalPrice > product.price 
+            ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100) 
+            : 0;
+
+          return (
+            <Grid item xs={6} key={product._id}>
+              <Card 
+                component={Link}
+                to={`/products/${product._id}`}
+                sx={{ 
+                  textDecoration: 'none',
+                  height: '100%',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  borderRadius: 2,
+                  cursor: 'pointer',
+                  transition: 'transform 0.2s',
+                  position: 'relative',
+                  '&:hover': {
+                    transform: 'translateY(-4px)',
+                    boxShadow: 3
+                  }
+                }}
+              >
+                {/* Discount Badge */}
+                {discount > 0 && (
+                  <Box
+                    sx={{
+                      position: 'absolute',
+                      top: 8,
+                      left: 8,
+                      bgcolor: '#ff4444',
+                      color: 'white',
+                      px: 1,
+                      py: 0.5,
+                      borderRadius: 1,
+                      fontSize: '12px',
+                      fontWeight: 'bold',
+                      zIndex: 1
+                    }}
+                  >
+                    {discount}% OFF
+                  </Box>
+                )}
+
+                <CardMedia
+                  component="img"
+                  height="140"
+                  image={product.image}
+                  alt={product.name}
+                  sx={{ 
+                    objectFit: 'cover',
+                    backgroundColor: '#f5f5f5'
+                  }}
+                />
+                <CardContent sx={{ p: 1.5 }}>
+                  <Typography variant="caption" color="text.secondary">
+                    {product.brand}
                   </Typography>
-                </Box>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                  <Typography variant="caption" sx={{ textDecoration: 'line-through', color: '#999' }}>
-                    {formatINR(product.originalPrice)}
+                  <Typography variant="body2" sx={{ fontWeight: 600, mb: 0.5 }} noWrap>
+                    {product.name}
                   </Typography>
-                  <Typography variant="body2" color="primary.main" fontWeight="bold">
-                    {formatINR(product.price)}
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
+                    <Rating value={product.rating} size="small" readOnly />
+                    <Typography variant="caption" sx={{ ml: 0.5 }}>
+                      {product.rating}
+                    </Typography>
+                  </Box>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flexWrap: 'wrap' }}>
+                    <Typography variant="caption" sx={{ textDecoration: 'line-through', color: '#999' }}>
+                      {formatINR(product.originalPrice)}
+                    </Typography>
+                    <Typography variant="body2" color="primary.main" fontWeight="bold">
+                      {formatINR(product.price)}
+                    </Typography>
+                  </Box>
+                  <Typography variant="caption" color="success.main" sx={{ display: 'block', mt: 0.5 }}>
+                    👁️ {product.views.toLocaleString()} views
                   </Typography>
-                </Box>
-                <Typography variant="caption" color="success.main" sx={{ display: 'block', mt: 0.5 }}>
-                  {product.views.toLocaleString()} views
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-        ))}
+                </CardContent>
+              </Card>
+            </Grid>
+          );
+        })}
       </Grid>
 
       {/* Starter Kit Banner */}

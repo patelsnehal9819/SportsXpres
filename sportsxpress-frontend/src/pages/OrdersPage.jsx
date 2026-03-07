@@ -15,6 +15,8 @@ import {
   CardContent,
   CircularProgress,
   Alert,
+  ToggleButton,
+  ToggleButtonGroup,
 } from '@mui/material';
 import {
   ShoppingBag,
@@ -22,6 +24,9 @@ import {
   Receipt,
   Star,
   ArrowForward,
+  Pending,
+  CheckCircle,
+  Cancel,
 } from '@mui/icons-material';
 import { Link, useNavigate } from 'react-router-dom';
 import { formatINR } from '../utils/currencyFormatter';
@@ -29,7 +34,9 @@ import toast from 'react-hot-toast';
 
 const OrdersPage = () => {
   const [orders, setOrders] = useState([]);
+  const [filteredOrders, setFilteredOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState('all'); // 'all', 'active', 'delivered', 'cancelled'
   const navigate = useNavigate();
   
   const user = JSON.parse(localStorage.getItem('user'));
@@ -45,6 +52,21 @@ const OrdersPage = () => {
     fetchOrders();
   }, []);
 
+  useEffect(() => {
+    // Filter orders when filter changes
+    if (filter === 'all') {
+      setFilteredOrders(orders);
+    } else if (filter === 'active') {
+      setFilteredOrders(orders.filter(o => 
+        ['pending', 'confirmed', 'shipped', 'out for delivery'].includes(o.status?.toLowerCase())
+      ));
+    } else if (filter === 'delivered') {
+      setFilteredOrders(orders.filter(o => o.status?.toLowerCase() === 'delivered'));
+    } else if (filter === 'cancelled') {
+      setFilteredOrders(orders.filter(o => o.status?.toLowerCase() === 'cancelled'));
+    }
+  }, [filter, orders]);
+
   const fetchOrders = async () => {
     setLoading(true);
     try {
@@ -59,15 +81,23 @@ const OrdersPage = () => {
       if (data.success && data.orders && data.orders.length > 0) {
         console.log(`✅ Found ${data.orders.length} orders`);
         setOrders(data.orders);
+        setFilteredOrders(data.orders);
       } else {
         console.log('❌ No orders found in API');
         setOrders([]);
+        setFilteredOrders([]);
       }
     } catch (error) {
       console.error('❌ Error fetching orders:', error);
       toast.error('Failed to load orders');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleFilterChange = (event, newFilter) => {
+    if (newFilter !== null) {
+      setFilter(newFilter);
     }
   };
 
@@ -88,6 +118,7 @@ const OrdersPage = () => {
       case 'shipped': return 'info';
       case 'confirmed': return 'primary';
       case 'pending': return 'warning';
+      case 'cancelled': return 'error';
       default: return 'default';
     }
   };
@@ -128,12 +159,57 @@ const OrdersPage = () => {
       <Typography variant="h4" fontWeight="bold" gutterBottom>
         My Orders
       </Typography>
+      
+      {/* Filter Toggle Buttons */}
+      <Box sx={{ mb: 4, display: 'flex', justifyContent: 'center' }}>
+        <ToggleButtonGroup
+          value={filter}
+          exclusive
+          onChange={handleFilterChange}
+          aria-label="order filter"
+          sx={{
+            '& .MuiToggleButton-root': {
+              px: 4,
+              py: 1,
+              borderRadius: 2,
+              mx: 0.5,
+              border: '1px solid #ddd',
+              '&.Mui-selected': {
+                bgcolor: '#fb641b',
+                color: 'white',
+                '&:hover': {
+                  bgcolor: '#f4511e',
+                }
+              }
+            }
+          }}
+        >
+          <ToggleButton value="all">
+            <ShoppingBag sx={{ mr: 1 }} />
+            All ({orders.length})
+          </ToggleButton>
+          <ToggleButton value="active">
+            <Pending sx={{ mr: 1 }} />
+            Active ({orders.filter(o => ['pending', 'confirmed', 'shipped', 'out for delivery'].includes(o.status?.toLowerCase())).length})
+          </ToggleButton>
+          <ToggleButton value="delivered">
+            <CheckCircle sx={{ mr: 1 }} />
+            Delivered ({orders.filter(o => o.status?.toLowerCase() === 'delivered').length})
+          </ToggleButton>
+          <ToggleButton value="cancelled">
+            <Cancel sx={{ mr: 1 }} />
+            Cancelled ({orders.filter(o => o.status?.toLowerCase() === 'cancelled').length})
+          </ToggleButton>
+        </ToggleButtonGroup>
+      </Box>
+
+      {/* Results count */}
       <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
-        You have {orders.length} {orders.length === 1 ? 'order' : 'orders'}
+        Showing {filteredOrders.length} {filteredOrders.length === 1 ? 'order' : 'orders'}
       </Typography>
 
       <Grid container spacing={3}>
-        {orders.map((order) => {
+        {filteredOrders.map((order) => {
           const steps = ['Pending', 'Confirmed', 'Shipped', 'Out for Delivery', 'Delivered'];
           const activeStep = getStatusStep(order.status);
           
@@ -220,7 +296,7 @@ const OrdersPage = () => {
                 </Stepper>
 
                 {/* Delivery Estimate */}
-                {order.status?.toLowerCase() !== 'delivered' && (
+                {order.status?.toLowerCase() !== 'delivered' && order.status?.toLowerCase() !== 'cancelled' && (
                   <Alert severity="info" sx={{ mb: 3 }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                       <LocalShipping />
@@ -245,15 +321,17 @@ const OrdersPage = () => {
                   >
                     View Details
                   </Button>
-                  <Button
-                    variant="contained"
-                    size="small"
-                    endIcon={<Star />}
-                    onClick={() => navigate(`/feedback/${order.orderId || order._id}`)}
-                    sx={{ bgcolor: '#fb641b' }}
-                  >
-                    Leave Feedback
-                  </Button>
+                  {order.status?.toLowerCase() === 'delivered' && (
+                    <Button
+                      variant="contained"
+                      size="small"
+                      endIcon={<Star />}
+                      onClick={() => navigate(`/feedback/${order.orderId || order._id}`)}
+                      sx={{ bgcolor: '#fb641b' }}
+                    >
+                      Leave Feedback
+                    </Button>
+                  )}
                 </Box>
               </Paper>
             </Grid>

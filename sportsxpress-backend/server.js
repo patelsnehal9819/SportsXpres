@@ -175,4 +175,4 @@ app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log('📦 Collections: users, products, carts, orders, feedbacks, wishlists, starterkits, aisizes');
   console.log('📧 Test email at: /api/test-email-direct');
-});
+});// trigger restart

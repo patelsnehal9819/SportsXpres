@@ -36,6 +36,7 @@ import {
   FitnessCenter,
   ArrowBack,
   Clear,
+  Receipt as OrdersIcon,  // ← ADDED Orders Icon
 } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
@@ -59,6 +60,7 @@ const MobileAppLayout = ({ children, title, showBack = false, onBack }) => {
     if (path.includes('/cart')) return 2;
     if (path.includes('/wishlist')) return 3;
     if (path.includes('/profile')) return 4;
+    if (path.includes('/orders')) return 4; // Also show profile tab for orders
     return 0;
   });
 
@@ -110,11 +112,17 @@ const MobileAppLayout = ({ children, title, showBack = false, onBack }) => {
   const menuItems = [
     { text: 'Home', icon: <Home />, path: '/' },
     { text: 'Products', icon: <SearchIcon />, path: '/products' },
-    { text: 'Sports', icon: <SportsCricket />, path: '/sports-page' }, // Changed from '/sports' to '/sports-page'
+    { text: 'Sports', icon: <SportsCricket />, path: '/sports-page' },
     { text: 'Starter Kit', icon: <FitnessCenter />, path: '/starter-kit' },
     { text: 'AI Size', icon: <SmartToy />, path: '/ai-size' },
     { text: 'Cart', icon: <ShoppingCart />, path: '/cart', badge: getCartCount() },
     { text: 'Wishlist', icon: <Favorite />, path: '/wishlist', badge: wishlistCount },
+  ];
+
+  // User menu items (shown only when logged in)
+  const userMenuItems = [
+    { text: 'My Profile', icon: <Person />, path: '/profile' },
+    { text: 'My Orders', icon: <OrdersIcon />, path: '/orders' }, // ← ADDED Orders here
   ];
 
   return (
@@ -310,7 +318,7 @@ const MobileAppLayout = ({ children, title, showBack = false, onBack }) => {
 
           <Divider sx={{ mb: 2 }} />
 
-          {/* Menu Items */}
+          {/* Main Menu Items */}
           <List>
             {menuItems.map((item) => (
               <ListItem key={item.text} disablePadding>
@@ -326,8 +334,31 @@ const MobileAppLayout = ({ children, title, showBack = false, onBack }) => {
             ))}
           </List>
 
+          {/* User Menu Items (only shown when logged in) */}
+          {user && (
+            <>
+              <Divider sx={{ my: 2 }} />
+              <Typography variant="subtitle2" color="text.secondary" sx={{ px: 2, mb: 1 }}>
+                Your Account
+              </Typography>
+              <List>
+                {userMenuItems.map((item) => (
+                  <ListItem key={item.text} disablePadding>
+                    <ListItemButton onClick={() => handleNavigation(item.path)}>
+                      <ListItemIcon>
+                        {item.icon}
+                      </ListItemIcon>
+                      <ListItemText primary={item.text} />
+                    </ListItemButton>
+                  </ListItem>
+                ))}
+              </List>
+            </>
+          )}
+
           <Divider sx={{ my: 2 }} />
 
+          {/* Logout Button (only when logged in) */}
           {user && (
             <List>
               <ListItem disablePadding>

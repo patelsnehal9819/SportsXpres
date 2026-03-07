@@ -1,84 +1,58 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import toast from 'react-hot-toast';
 
 const WishlistContext = createContext();
-export const useWishlist = () => useContext(WishlistContext);
+
+export const useWishlist = () => {
+  const context = useContext(WishlistContext);
+  if (!context) {
+    throw new Error('useWishlist must be used within a WishlistProvider');
+  }
+  return context;
+};
 
 export const WishlistProvider = ({ children }) => {
   const [wishlistItems, setWishlistItems] = useState([]);
-  const user = JSON.parse(localStorage.getItem('user'));
-  const userId = user?._id;
-  const BASE_URL = 'https://solid-fishstick-7v74445764vj3pjgx-5000.app.github.dev';
 
+  // Load wishlist from localStorage on initial render
   useEffect(() => {
-    if (userId) {
-      fetchWishlist();
-    }
-  }, [userId]);
-
-  const fetchWishlist = async () => {
-    try {
-      const response = await fetch(`${BASE_URL}/api/wishlist/${userId}`);
-      const data = await response.json();
-      if (data.success) {
-        setWishlistItems(data.wishlist.items || []);
+    const savedWishlist = localStorage.getItem('wishlist');
+    if (savedWishlist) {
+      try {
+        setWishlistItems(JSON.parse(savedWishlist));
+      } catch (error) {
+        console.error('Error loading wishlist:', error);
       }
-    } catch (error) {
-      console.error('Error fetching wishlist:', error);
     }
+  }, []);
+
+  // Save wishlist to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem('wishlist', JSON.stringify(wishlistItems));
+  }, [wishlistItems]);
+
+  const addToWishlist = (product) => {
+    setWishlistItems(prevItems => {
+      // Check if product already exists in wishlist
+      const exists = prevItems.some(item => item._id === product._id);
+      if (!exists) {
+        return [...prevItems, product];
+      }
+      return prevItems;
+    });
   };
 
-  const addToWishlist = async (product) => {
-    if (!userId) {
-      toast.error('Please login first');
-      return;
-    }
-
-    try {
-      const response = await fetch(`${BASE_URL}/api/wishlist/add`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userId,
-          productId: product._id,
-          name: product.name,
-          price: product.price,
-          brand: product.brand,
-          image: product.image,
-          category: product.category
-        })
-      });
-
-      const data = await response.json();
-      if (data.success) {
-        setWishlistItems(data.wishlist.items || []);
-        toast.success('Added to wishlist');
-      }
-    } catch (error) {
-      console.error('Error adding to wishlist:', error);
-    }
-  };
-
-  const removeFromWishlist = async (productId) => {
-    try {
-      const response = await fetch(`${BASE_URL}/api/wishlist/remove`, {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, productId })
-      });
-
-      const data = await response.json();
-      if (data.success) {
-        setWishlistItems(data.wishlist.items || []);
-        toast.success('Removed from wishlist');
-      }
-    } catch (error) {
-      console.error('Error removing from wishlist:', error);
-    }
+  const removeFromWishlist = (productId) => {
+    setWishlistItems(prevItems => 
+      prevItems.filter(item => item._id !== productId)
+    );
   };
 
   const isInWishlist = (productId) => {
-    return wishlistItems.some(item => item.productId === productId);
+    return wishlistItems.some(item => item._id === productId);
+  };
+
+  const clearWishlist = () => {
+    setWishlistItems([]);
   };
 
   return (
@@ -87,7 +61,7 @@ export const WishlistProvider = ({ children }) => {
       addToWishlist,
       removeFromWishlist,
       isInWishlist,
-      wishlistCount: wishlistItems.length
+      clearWishlist
     }}>
       {children}
     </WishlistContext.Provider>

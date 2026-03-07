@@ -13,8 +13,12 @@ const productSchema = new mongoose.Schema({
     },
     category: {
         type: String,
-        required: [true, 'Category is required'],
-        enum: ['helmets', 'abdomen-guard', 'batting-pads', 'gloves', 'other']
+        required: [true, 'Category is required']
+    },
+    sport: {
+        type: String,
+        required: [true, 'Sport is required'],
+        enum: ['cricket', 'football', 'basketball', 'badminton', 'gym-fitness', 'running', 'other']
     },
     originalPrice: {
         type: Number,

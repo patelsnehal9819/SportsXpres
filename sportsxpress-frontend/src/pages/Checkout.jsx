@@ -42,6 +42,8 @@ const Checkout = () => {
   
   const user = JSON.parse(localStorage.getItem('user'));
   const userId = user?._id;
+  
+  // ✅ FIXED: Use the same BASE_URL as your other files
   const BASE_URL = 'https://solid-fishstick-7v74445764vj3pjgx-5000.app.github.dev';
 
   // Address state
@@ -150,6 +152,7 @@ const Checkout = () => {
       };
 
       console.log('📦 Placing order:', orderData);
+      console.log('📡 Posting to:', `${BASE_URL}/api/orders`);
 
       const response = await fetch(`${BASE_URL}/api/orders`, {
         method: 'POST',
@@ -157,11 +160,18 @@ const Checkout = () => {
         body: JSON.stringify(orderData)
       });
 
+      console.log('📡 Response status:', response.status);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
       const data = await response.json();
       console.log('✅ Order response:', data);
       
       if (data.success) {
         // Clear cart from MongoDB
+        console.log('🗑️ Clearing cart for user:', userId);
         await fetch(`${BASE_URL}/api/cart/clear/${userId}`, {
           method: 'DELETE'
         });
@@ -176,7 +186,7 @@ const Checkout = () => {
       }
     } catch (error) {
       console.error('❌ Order error:', error);
-      toast.error('Failed to place order');
+      toast.error('Failed to place order. Please try again.');
     } finally {
       setLoading(false);
     }

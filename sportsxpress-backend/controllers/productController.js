@@ -97,7 +97,7 @@ const createProduct = async (req, res) => {
 // @route   GET /api/products
 const getProducts = async (req, res) => {
     try {
-        const { category, featured, search, limit = 50 } = req.query;
+        const { category, featured, search, limit } = req.query;
         let query = {};
 
         // Filter by category
@@ -115,9 +115,14 @@ const getProducts = async (req, res) => {
             query.$text = { $search: search };
         }
 
-        const products = await Product.find(query)
-            .sort({ createdAt: -1 })
-            .limit(parseInt(limit));
+        let dbQuery = Product.find(query).sort({ createdAt: -1 });
+        
+        // Only apply limit if specified and less than 500
+        if (limit && parseInt(limit) < 500) {
+            dbQuery = dbQuery.limit(parseInt(limit));
+        }
+        
+        const products = await dbQuery;
 
         console.log(`📦 Found ${products.length} products`);
 
