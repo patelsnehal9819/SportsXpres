@@ -30,3 +30,5 @@ backend/node_modules/
 backend/coverage/
 frontend/node_modules/
 frontend/coverage/
+commandlinetools-linux-11076708_latest.zip
+*.zip
