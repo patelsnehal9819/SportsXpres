@@ -32,5 +32,10 @@
   "homepage": "https://github.com/patelsnehal9819/SportsXpres#readme",
   "devDependencies": {
     "concurrently": "^9.2.1"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.2.0",
+    "@capacitor/cli": "^8.2.0",
+    "@capacitor/core": "^8.2.0"
   }
 }

@@ -30,18 +30,18 @@ import {
 } from '@mui/icons-material';
 import { Link, useNavigate } from 'react-router-dom';
 import { formatINR } from '../utils/currencyFormatter';
+import { API_URL } from '../config';
 import toast from 'react-hot-toast';
 
 const OrdersPage = () => {
   const [orders, setOrders] = useState([]);
   const [filteredOrders, setFilteredOrders] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState('all'); // 'all', 'active', 'delivered', 'cancelled'
+  const [filter, setFilter] = useState('all');
   const navigate = useNavigate();
   
   const user = JSON.parse(localStorage.getItem('user'));
   const userId = user?._id;
-  const BASE_URL = 'https://solid-fishstick-7v74445764vj3pjgx-5000.app.github.dev';
 
   useEffect(() => {
     if (!userId) {
@@ -50,10 +50,9 @@ const OrdersPage = () => {
       return;
     }
     fetchOrders();
-  }, []);
+  }, [userId]);
 
   useEffect(() => {
-    // Filter orders when filter changes
     if (filter === 'all') {
       setFilteredOrders(orders);
     } else if (filter === 'active') {
@@ -71,9 +70,9 @@ const OrdersPage = () => {
     setLoading(true);
     try {
       console.log('📦 Fetching orders for user:', userId);
-      console.log('🔗 API URL:', `${BASE_URL}/api/orders/user/${userId}`);
+      console.log('🔗 API URL:', `${API_URL}/api/orders/user/${userId}`);
       
-      const response = await fetch(`${BASE_URL}/api/orders/user/${userId}`);
+      const response = await fetch(`${API_URL}/api/orders/user/${userId}`);
       const data = await response.json();
       
       console.log('📥 API Response:', data);
@@ -160,7 +159,6 @@ const OrdersPage = () => {
         My Orders
       </Typography>
       
-      {/* Filter Toggle Buttons */}
       <Box sx={{ mb: 4, display: 'flex', justifyContent: 'center' }}>
         <ToggleButtonGroup
           value={filter}
@@ -203,7 +201,6 @@ const OrdersPage = () => {
         </ToggleButtonGroup>
       </Box>
 
-      {/* Results count */}
       <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
         Showing {filteredOrders.length} {filteredOrders.length === 1 ? 'order' : 'orders'}
       </Typography>
@@ -216,7 +213,6 @@ const OrdersPage = () => {
           return (
             <Grid item xs={12} key={order._id}>
               <Paper elevation={2} sx={{ p: 3, borderRadius: 2 }}>
-                {/* Order Header */}
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2, flexWrap: 'wrap' }}>
                   <Box>
                     <Typography variant="h6" fontWeight="bold">
@@ -245,7 +241,6 @@ const OrdersPage = () => {
                   </Box>
                 </Box>
 
-                {/* Order Items Preview */}
                 {order.items && order.items.length > 0 ? (
                   <Box sx={{ mb: 3 }}>
                     <Grid container spacing={2}>
@@ -284,7 +279,6 @@ const OrdersPage = () => {
                   </Typography>
                 )}
 
-                {/* Order Status Stepper */}
                 <Stepper activeStep={activeStep} alternativeLabel sx={{ mb: 3 }}>
                   {steps.map((label, index) => (
                     <Step key={label} completed={index <= activeStep}>
@@ -295,7 +289,6 @@ const OrdersPage = () => {
                   ))}
                 </Stepper>
 
-                {/* Delivery Estimate */}
                 {order.status?.toLowerCase() !== 'delivered' && order.status?.toLowerCase() !== 'cancelled' && (
                   <Alert severity="info" sx={{ mb: 3 }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -310,7 +303,6 @@ const OrdersPage = () => {
                   </Alert>
                 )}
 
-                {/* Action Buttons */}
                 <Divider sx={{ my: 2 }} />
                 <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
                   <Button

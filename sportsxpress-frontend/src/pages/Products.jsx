@@ -38,10 +38,10 @@ import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 import { productImages, DEFAULT_IMAGE } from '../utils/productImages';
+import { API_URL } from '../config';
 import toast from 'react-hot-toast';
 import '../App.css';
 
-// Format price in Indian Rupees
 const formatPrice = (price) => {
   return `₹${price?.toLocaleString('en-IN') || 0}`;
 };
@@ -60,10 +60,7 @@ const Products = () => {
   const [priceRange, setPriceRange] = useState([0, 20000]);
   const [sortBy, setSortBy] = useState('popularity');
   const [filterOpen, setFilterOpen] = useState(false);
-  
-  const BASE_URL = 'https://solid-fishstick-7v74445764vj3pjgx-5000.app.github.dev';
 
-  // Calculate brands from products
   const brands = products.length > 0 
     ? [...new Set(products.map(p => p.brand))].filter(Boolean)
     : [];
@@ -77,9 +74,9 @@ const Products = () => {
     setError(null);
     
     try {
-      console.log('🔍 Fetching products from:', `${BASE_URL}/api/products`);
+      console.log('🔍 Fetching products from:', `${API_URL}/api/products`);
       
-      const response = await fetch(`${BASE_URL}/api/products`);
+      const response = await fetch(`${API_URL}/api/products`);
       console.log('📡 Response status:', response.status);
       
       if (!response.ok) {
@@ -89,7 +86,6 @@ const Products = () => {
       const data = await response.json();
       console.log('📦 API Response:', data);
       
-      // Handle different API response structures
       let productsArray = [];
       
       if (Array.isArray(data)) {
@@ -125,9 +121,7 @@ const Products = () => {
         return;
       }
       
-      // Map ALL products with UNIQUE images from shared file
       const mappedProducts = productsArray.map((product, index) => {
-        // Try to get image from productImages first, then from product, then default
         let productImage = DEFAULT_IMAGE;
         
         if (product.name && productImages[product.name]) {
@@ -137,7 +131,6 @@ const Products = () => {
         } else if (product.imageUrl) {
           productImage = product.imageUrl;
         } else {
-          // Assign based on category/sport
           const name = (product.name || '').toLowerCase();
           const category = (product.category || '').toLowerCase();
           
@@ -187,7 +180,6 @@ const Products = () => {
     }
   };
 
-  // Filter products based on search, brand, price, and sort
   useEffect(() => {
     let result = [...products];
     
@@ -265,7 +257,6 @@ const Products = () => {
 
   return (
     <Container maxWidth="xl" sx={{ py: 4, bgcolor: '#f1f3f6', minHeight: '100vh' }}>
-      {/* Header with product count */}
       <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Typography variant="h4" fontWeight="bold">
           All Sports Equipment
@@ -277,7 +268,6 @@ const Products = () => {
         />
       </Box>
 
-      {/* Search and Filter Bar */}
       <Box sx={{ mb: 4 }}>
         <Grid container spacing={2}>
           <Grid item xs={12} md={6}>
@@ -324,7 +314,6 @@ const Products = () => {
         </Grid>
       </Box>
 
-      {/* Filter Drawer */}
       <Drawer anchor="left" open={filterOpen} onClose={() => setFilterOpen(false)}>
         <Box sx={{ width: 300, p: 3 }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
@@ -373,7 +362,6 @@ const Products = () => {
         </Box>
       </Drawer>
 
-      {/* Products Grid - ALL products shown, 5 in a row */}
       {filteredProducts.length === 0 ? (
         <Box sx={{ textAlign: 'center', py: 8 }}>
           <Typography variant="h6" gutterBottom>No products found</Typography>
@@ -389,7 +377,6 @@ const Products = () => {
                 Math.floor(((product.originalPrice - product.price) / product.originalPrice) * 100) : 20);
             
             return (
-              // CHANGED: From lg={3} (4 columns) to lg={2.4} (5 columns)
               <Grid item xs={12} sm={6} md={4} lg={2.4} key={product._id}>
                 <Card 
                   sx={{ 
@@ -402,7 +389,6 @@ const Products = () => {
                   }}
                   onClick={() => navigate(`/products/${product._id}`)}
                 >
-                  {/* Wishlist Button */}
                   <IconButton
                     sx={{
                       position: 'absolute',
@@ -422,7 +408,6 @@ const Products = () => {
                     )}
                   </IconButton>
 
-                  {/* Discount Badge */}
                   {discount > 0 && (
                     <Chip 
                       label={`${discount}% OFF`} 
@@ -438,7 +423,6 @@ const Products = () => {
                     />
                   )}
 
-                  {/* Product Image */}
                   <Box
                     sx={{
                       height: 180,
@@ -488,7 +472,6 @@ const Products = () => {
                     </Box>
                   </CardContent>
 
-                  {/* View Details Button */}
                   <Box sx={{ p: 1.5, pt: 0 }}>
                     <Button
                       fullWidth
@@ -510,9 +493,6 @@ const Products = () => {
         </Grid>
       )}
 
-      {/* REMOVED: Pagination section completely */}
-
-      {/* Scroll to Top */}
       <Fab color="primary" sx={{ position: 'fixed', bottom: 16, right: 16 }} onClick={() => window.scrollTo(0, 0)}>
         <ArrowUpward />
       </Fab>

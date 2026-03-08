@@ -32,6 +32,7 @@ import {
 import { useCart } from '../context/CartContext';
 import { useNavigate, Link } from 'react-router-dom';
 import { formatINR } from '../utils/currencyFormatter';
+import { API_URL } from '../config';
 import toast from 'react-hot-toast';
 
 const Checkout = () => {
@@ -42,9 +43,6 @@ const Checkout = () => {
   
   const user = JSON.parse(localStorage.getItem('user'));
   const userId = user?._id;
-  
-  // ✅ FIXED: Use the same BASE_URL as your other files
-  const BASE_URL = 'https://solid-fishstick-7v74445764vj3pjgx-5000.app.github.dev';
 
   // Address state
   const [address, setAddress] = useState({
@@ -152,9 +150,9 @@ const Checkout = () => {
       };
 
       console.log('📦 Placing order:', orderData);
-      console.log('📡 Posting to:', `${BASE_URL}/api/orders`);
+      console.log('📡 Posting to:', `${API_URL}/api/orders`);
 
-      const response = await fetch(`${BASE_URL}/api/orders`, {
+      const response = await fetch(`${API_URL}/api/orders`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(orderData)
@@ -170,16 +168,14 @@ const Checkout = () => {
       console.log('✅ Order response:', data);
       
       if (data.success) {
-        // Clear cart from MongoDB
         console.log('🗑️ Clearing cart for user:', userId);
-        await fetch(`${BASE_URL}/api/cart/clear/${userId}`, {
+        await fetch(`${API_URL}/api/cart/clear/${userId}`, {
           method: 'DELETE'
         });
         
-        clearCart(); // Clear local cart
+        clearCart();
         toast.success('Order placed successfully!');
         
-        // Navigate to order confirmation with the correct order ID
         navigate(`/order-confirmation/${data.order.orderId || data.order._id}`);
       } else {
         toast.error(data.message || 'Failed to place order');
@@ -228,7 +224,6 @@ const Checkout = () => {
 
       {loading && <LinearProgress sx={{ mb: 2 }} />}
 
-      {/* Step 1: Shipping Address */}
       {activeStep === 0 && (
         <Paper sx={{ p: 2, borderRadius: 2 }}>
           <Typography variant="subtitle1" fontWeight="bold" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
@@ -303,7 +298,6 @@ const Checkout = () => {
         </Paper>
       )}
 
-      {/* Step 2: Payment Method */}
       {activeStep === 1 && (
         <Paper sx={{ p: 2, borderRadius: 2 }}>
           <Typography variant="subtitle1" fontWeight="bold" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
@@ -327,7 +321,6 @@ const Checkout = () => {
         </Paper>
       )}
 
-      {/* Step 3: Review Order */}
       {activeStep === 2 && (
         <Paper sx={{ p: 2, borderRadius: 2 }}>
           <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
@@ -371,7 +364,6 @@ const Checkout = () => {
         </Paper>
       )}
 
-      {/* Navigation Buttons */}
       <Box sx={{ display: 'flex', gap: 1, mt: 2 }}>
         <Button
           fullWidth
@@ -393,7 +385,6 @@ const Checkout = () => {
         </Button>
       </Box>
 
-      {/* Order Summary */}
       <Paper sx={{ mt: 2, p: 2, borderRadius: 2, bgcolor: '#f5f5f5' }}>
         <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
           Order Summary

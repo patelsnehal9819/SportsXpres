@@ -38,12 +38,10 @@ import {
 import { useParams, useNavigate, Link as RouterLink } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
-import { productImages, DEFAULT_IMAGE } from '../utils/productImages'; // ✅ Import shared images
+import { productImages, DEFAULT_IMAGE } from '../utils/productImages';
+import { API_URL } from '../config';
 import toast from 'react-hot-toast';
 
-const BASE_URL = 'https://solid-fishstick-7v74445764vj3pjgx-5000.app.github.dev';
-
-// Format price in Indian Rupees
 const formatPrice = (price) => {
   if (price === undefined || price === null) return '₹0';
   return `₹${price.toLocaleString('en-IN')}`;
@@ -73,9 +71,9 @@ const ProductDetail = () => {
     setError(null);
     try {
       console.log('🔍 Fetching product details for ID:', id);
-      console.log('📌 API URL:', `${BASE_URL}/api/products/${id}`);
+      console.log('📌 API URL:', `${API_URL}/api/products/${id}`);
       
-      const response = await fetch(`${BASE_URL}/api/products/${id}`);
+      const response = await fetch(`${API_URL}/api/products/${id}`);
       console.log('📡 Response status:', response.status);
       
       if (!response.ok) {
@@ -88,7 +86,6 @@ const ProductDetail = () => {
       const data = await response.json();
       console.log('📦 Product API Response:', data);
       
-      // Handle different response structures
       let productData = null;
       
       if (data.success && data.data) {
@@ -108,17 +105,14 @@ const ProductDetail = () => {
       }
       
       if (productData) {
-        // ✅ CRITICAL: Get image from shared productImages mapping
         const productImage = productImages[productData.name] || DEFAULT_IMAGE;
         
         console.log('🖼️ Product name:', productData.name);
         console.log('🖼️ Found image:', productImage);
         
-        // Check stock status
         const hasStock = productData.inStock !== false;
         const stockQty = productData.stockQuantity || 10;
         
-        // Map the product data
         const mappedProduct = {
           _id: productData._id || id,
           name: productData.name || 'Product Name',
@@ -131,7 +125,7 @@ const ProductDetail = () => {
           rating: productData.rating || 4.5,
           category: productData.category || 'general',
           description: productData.description || 'No description available',
-          image: productImage, // ✅ Use image from shared mapping
+          image: productImage,
           inStock: hasStock,
           stockQuantity: stockQty,
           offers: productData.offers || ['Special offer available'],
@@ -222,7 +216,6 @@ const ProductDetail = () => {
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
-      {/* Breadcrumb Navigation */}
       <Breadcrumbs sx={{ mb: 3 }}>
         <Link component={RouterLink} to="/" underline="hover" color="inherit">
           <Home sx={{ mr: 0.5, fontSize: 18 }} />
@@ -234,13 +227,11 @@ const ProductDetail = () => {
         <Typography color="text.primary">{product.name}</Typography>
       </Breadcrumbs>
 
-      {/* Back Button */}
       <Button startIcon={<ArrowBack />} onClick={() => navigate(-1)} sx={{ mb: 3 }}>
         Back
       </Button>
 
       <Grid container spacing={4}>
-        {/* Product Image - THIS IS WHERE THE IMAGE SHOULD APPEAR */}
         <Grid item xs={12} md={6}>
           <Paper elevation={2} sx={{ p: 3, borderRadius: 2 }}>
             <Box
@@ -256,18 +247,15 @@ const ProductDetail = () => {
                 border: '1px solid #eee'
               }}
             />
-            {/* Debug info - remove after fixing */}
             <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
               Image URL: {product.image}
             </Typography>
           </Paper>
         </Grid>
 
-        {/* Product Details */}
         <Grid item xs={12} md={6}>
           <Card sx={{ p: 3, borderRadius: 2 }}>
             <CardContent>
-              {/* Brand and Wishlist */}
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
                 <Typography variant="h6" color="text.secondary">
                   {product.brand}
@@ -277,12 +265,10 @@ const ProductDetail = () => {
                 </IconButton>
               </Box>
 
-              {/* Product Name */}
               <Typography variant="h4" component="h1" gutterBottom sx={{ fontWeight: 'bold' }}>
                 {product.name}
               </Typography>
 
-              {/* Rating */}
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
                 <Rating value={product.rating} readOnly precision={0.5} />
                 <Typography variant="body2" color="text.secondary">
@@ -291,7 +277,6 @@ const ProductDetail = () => {
                 <Chip icon={<Verified />} label="Assured" size="small" sx={{ bgcolor: '#ffc107' }} />
               </Box>
 
-              {/* Price Section */}
               <Box sx={{ mb: 3 }}>
                 {discount > 0 && (
                   <Typography variant="body2" sx={{ color: '#00a650', fontWeight: 'bold', mb: 1 }}>
@@ -316,7 +301,6 @@ const ProductDetail = () => {
                 </Typography>
               </Box>
 
-              {/* Offers */}
               <Paper variant="outlined" sx={{ p: 2, mb: 3, bgcolor: '#f8f9fa' }}>
                 <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 'bold' }}>
                   Available Offers
@@ -339,14 +323,12 @@ const ProductDetail = () => {
                 </List>
               </Paper>
 
-              {/* Stock Status */}
               <Box sx={{ mb: 3 }}>
                 <Typography variant="body2" sx={{ color: product.inStock ? '#00a650' : '#ff4444', fontWeight: 'bold' }}>
                   {product.inStock ? '✓ In Stock' : '✗ Out of Stock'}
                 </Typography>
               </Box>
 
-              {/* Quantity Selector */}
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
                 <Typography>Quantity:</Typography>
                 <Box sx={{ display: 'flex', alignItems: 'center', border: '1px solid #ddd', borderRadius: 1 }}>
@@ -360,7 +342,6 @@ const ProductDetail = () => {
                 </Box>
               </Box>
 
-              {/* Action Buttons */}
               <Stack direction="row" spacing={2} sx={{ mb: 3 }}>
                 <Button
                   variant="contained"
@@ -378,7 +359,6 @@ const ProductDetail = () => {
                 </Button>
               </Stack>
 
-              {/* Features */}
               <Divider sx={{ my: 3 }} />
               <Grid container spacing={2}>
                 <Grid item xs={4}>

@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">SportsXpress</string>
+    <string name="title_activity_main">SportsXpress</string>
+    <string name="package_name">com.sportsxpress.app</string>
+    <string name="custom_url_scheme">com.sportsxpress.app</string>
+</resources>

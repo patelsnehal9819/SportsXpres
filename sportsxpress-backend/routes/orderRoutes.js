@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Order = require('../models/Order');
 const User = require('../models/User');
-const { sendOrderSMS } = require('../services/smsService'); // ← ADD THIS
+const { sendOrderSMS } = require('../services/smsService');
 
 // Create new order
 router.post('/', async (req, res) => {
@@ -10,12 +10,21 @@ router.post('/', async (req, res) => {
     const orderData = req.body;
     orderData.orderId = 'ORD' + Date.now() + Math.floor(Math.random() * 1000);
     
+    // ✅ FIX: Check if user ID is provided
+    if (!orderData.user) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'User ID is required' 
+      });
+    }
+    
     const order = new Order(orderData);
     await order.save();
     
     console.log('✅ Order saved:', order.orderId);
+    console.log('👤 Order belongs to user:', order.user);
     
-    // 🚀 SEND ORDER CONFIRMATION SMS
+    // Send order confirmation SMS
     try {
       const user = await User.findById(orderData.user);
       if (user && user.phone) {

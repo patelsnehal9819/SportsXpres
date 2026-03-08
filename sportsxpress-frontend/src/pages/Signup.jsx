@@ -8,56 +8,22 @@ import {
   Button,
   Box,
   Alert,
+  CircularProgress,
   IconButton,
   InputAdornment,
 } from '@mui/material';
-import { CheckCircle, Cancel, Visibility, VisibilityOff } from '@mui/icons-material'; // Added Visibility icons
+import { Visibility, VisibilityOff } from '@mui/icons-material';
+import axios from '../utils/api';
+import { API_URL } from '../config';
+import toast from 'react-hot-toast';
 
-const Signup = () => {
+const Login = () => {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    password: '',
-  });
-  const [showPassword, setShowPassword] = useState(false); // ← ADD THIS
-  const [error, setError] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  
-  // Password validation state
-  const [passwordValidations, setPasswordValidations] = useState({
-    minLength: false,
-    hasUpperCase: false,
-    hasLowerCase: false,
-    hasNumber: false,
-    hasSpecialChar: false,
-    isValid: false
-  });
 
-  // ✅ USE THIS EXACT URL - Copy from your Ports tab for port 5000
-  const BASE_URL = 'https://solid-fishstick-7v74445764vj3pjgx-5000.app.github.dev';
-
-  // Password validation function
-  const validatePassword = (password) => {
-    const minLength = password.length >= 8;
-    const hasUpperCase = /[A-Z]/.test(password);
-    const hasLowerCase = /[a-z]/.test(password);
-    const hasNumber = /[0-9]/.test(password);
-    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
-    const isValid = minLength && hasUpperCase && hasLowerCase && hasNumber && hasSpecialChar;
-
-    setPasswordValidations({
-      minLength,
-      hasUpperCase,
-      hasLowerCase,
-      hasNumber,
-      hasSpecialChar,
-      isValid
-    });
-  };
-
-  // Password visibility toggle functions
   const handleClickShowPassword = () => {
     setShowPassword(!showPassword);
   };
@@ -66,50 +32,21 @@ const Signup = () => {
     event.preventDefault();
   };
 
-  // Updated handleChange with password validation
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-    if (e.target.name === 'password') {
-      validatePassword(e.target.value);
-    }
-  };
-
-  // Updated handleSubmit with password validation check
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // Check password requirements
-    if (!passwordValidations.isValid) {
-      setError('Password must meet all requirements shown below');
-      return;
-    }
-
     setLoading(true);
-    setError('');
     
     try {
-      console.log('🔍 Connecting to:', `${BASE_URL}/api/auth/register`);
+      const response = await axios.post('/auth/login', { email, password });
       
-      const response = await fetch(`${BASE_URL}/api/auth/register`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData)
-      });
-      
-      const data = await response.json();
-      console.log('✅ Response:', data);
-      
-      if (data.success) {
-        alert('✅ Account created! Please login.');
-        navigate('/login');
-      } else {
-        setError(data.message || 'Registration failed');
+      if (response.data.success) {
+        localStorage.setItem('token', response.data.token);
+        localStorage.setItem('user', JSON.stringify(response.data.user));
+        toast.success('Login successful!');
+        navigate('/');
       }
-    } catch (err) {
-      console.error('❌ Error:', err);
-      setError('Failed to connect to server. Using URL: ' + BASE_URL);
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Login failed');
     } finally {
       setLoading(false);
     }
@@ -119,49 +56,26 @@ const Signup = () => {
     <Container maxWidth="sm" sx={{ py: 8 }}>
       <Paper elevation={3} sx={{ p: 4 }}>
         <Typography variant="h4" align="center" gutterBottom>
-          Sign Up
+          Login
         </Typography>
-        
-        {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
         
         <form onSubmit={handleSubmit}>
           <TextField
             fullWidth
-            label="Name"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            margin="normal"
-            required
-          />
-          <TextField
-            fullWidth
             label="Email"
             type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            margin="normal"
-            required
-          />
-          <TextField
-            fullWidth
-            label="Phone"
-            name="phone"
-            value={formData.phone}
-            onChange={handleChange}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             margin="normal"
             required
           />
           
-          {/* UPDATED: Password field with visibility toggle */}
           <TextField
             fullWidth
             label="Password"
             type={showPassword ? 'text' : 'password'}
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             margin="normal"
             required
             InputProps={{
@@ -180,73 +94,20 @@ const Signup = () => {
             }}
           />
           
-          {/* Password Requirements Display */}
-          <Box sx={{ mt: 1, mb: 2, p: 2, bgcolor: '#f5f5f5', borderRadius: 1 }}>
-            <Typography variant="caption" color="text.secondary" gutterBottom sx={{ fontWeight: 'bold' }}>
-              Password must contain:
-            </Typography>
-            
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
-              {passwordValidations.minLength ? 
-                <CheckCircle sx={{ color: '#4caf50', fontSize: 16 }} /> : 
-                <Cancel sx={{ color: '#f44336', fontSize: 16 }} />
-              }
-              <Typography variant="caption">At least 8 characters</Typography>
-            </Box>
-            
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
-              {passwordValidations.hasUpperCase ? 
-                <CheckCircle sx={{ color: '#4caf50', fontSize: 16 }} /> : 
-                <Cancel sx={{ color: '#f44336', fontSize: 16 }} />
-              }
-              <Typography variant="caption">At least one uppercase letter (A-Z)</Typography>
-            </Box>
-            
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
-              {passwordValidations.hasLowerCase ? 
-                <CheckCircle sx={{ color: '#4caf50', fontSize: 16 }} /> : 
-                <Cancel sx={{ color: '#f44336', fontSize: 16 }} />
-              }
-              <Typography variant="caption">At least one lowercase letter (a-z)</Typography>
-            </Box>
-            
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
-              {passwordValidations.hasNumber ? 
-                <CheckCircle sx={{ color: '#4caf50', fontSize: 16 }} /> : 
-                <Cancel sx={{ color: '#f44336', fontSize: 16 }} />
-              }
-              <Typography variant="caption">At least one number (0-9)</Typography>
-            </Box>
-            
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
-              {passwordValidations.hasSpecialChar ? 
-                <CheckCircle sx={{ color: '#4caf50', fontSize: 16 }} /> : 
-                <Cancel sx={{ color: '#f44336', fontSize: 16 }} />
-              }
-              <Typography variant="caption">At least one special character (!@#$%^&*)</Typography>
-            </Box>
-            
-            {passwordValidations.isValid && (
-              <Typography variant="caption" sx={{ color: '#4caf50', display: 'block', mt: 1, fontWeight: 'bold' }}>
-                ✓ Password meets all requirements
-              </Typography>
-            )}
-          </Box>
-          
           <Button
             fullWidth
             type="submit"
             variant="contained"
             disabled={loading}
-            sx={{ mt: 1, bgcolor: '#fb641b' }}
+            sx={{ mt: 3, mb: 2, bgcolor: '#fb641b' }}
           >
-            {loading ? 'Creating Account...' : 'Create Account'}
+            {loading ? <CircularProgress size={24} /> : 'Login'}
           </Button>
         </form>
 
-        <Box sx={{ textAlign: 'center', mt: 2 }}>
+        <Box sx={{ textAlign: 'center' }}>
           <Typography variant="body2">
-            Already have account? <Link to="/login">Login</Link>
+            New user? <Link to="/signup">Sign up here</Link>
           </Typography>
         </Box>
       </Paper>
@@ -254,4 +115,4 @@ const Signup = () => {
   );
 };
 
-export default Signup;
+export default Login;

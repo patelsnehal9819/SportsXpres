@@ -45,6 +45,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { formatINR } from '../utils/currencyFormatter';
+import { API_URL } from '../config';
 import toast from 'react-hot-toast';
 
 const StarterKit = () => {
@@ -56,8 +57,6 @@ const StarterKit = () => {
   const [budget, setBudget] = useState(5000);
   const [customizedKit, setCustomizedKit] = useState([]);
   const [saving, setSaving] = useState(false);
-
-  const BASE_URL = 'https://solid-fishstick-7v74445764vj3pjgx-5000.app.github.dev';
 
   const sportImages = {
     cricket: 'https://images.unsplash.com/photo-1531415074968-036ba1b575da?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
@@ -84,7 +83,6 @@ const StarterKit = () => {
     jersey: 'https://images.pexels.com/photos/35162974/pexels-photo-35162974.jpeg',
   };
 
-  // ========== FIXED: Badminton Images with working URLs ==========
   const badmintonImages = {
     racket: 'https://images.pexels.com/photos/6307230/pexels-photo-6307230.jpeg',
     shuttle: 'https://images.pexels.com/photos/8007408/pexels-photo-8007408.jpeg',
@@ -93,7 +91,6 @@ const StarterKit = () => {
     bag: 'https://images.pexels.com/photos/33307140/pexels-photo-33307140.jpeg',
   };
 
-  // ========== FIXED: Basketball Images with working URLs ==========
   const basketballImages = {
     ball: 'https://images.pexels.com/photos/1752757/pexels-photo-1752757.jpeg?auto=compress&cs=tinysrgb&w=600',
     shoes: 'https://images.pexels.com/photos/2923624/pexels-photo-2923624.jpeg?auto=compress&cs=tinysrgb&w=600',
@@ -102,7 +99,6 @@ const StarterKit = () => {
     bag: 'https://images.pexels.com/photos/27914830/pexels-photo-27914830.jpeg?auto=compress&cs=tinysrgb&w=600',
   };
 
-  // ========== FIXED: Gym Images with working URLs ==========
   const gymImages = {
     dumbbells: 'https://images.pexels.com/photos/841130/pexels-photo-841130.jpeg?auto=compress&cs=tinysrgb&w=600',
     bench: 'https://images.pexels.com/photos/416809/pexels-photo-416809.jpeg?auto=compress&cs=tinysrgb&w=600',
@@ -111,7 +107,6 @@ const StarterKit = () => {
     bag: 'https://images.pexels.com/photos/27914830/pexels-photo-27914830.jpeg?auto=compress&cs=tinysrgb&w=600',
   };
 
-  // ========== FIXED: Running Images with working URLs ==========
   const runningImages = {
     shoes: 'https://images.pexels.com/photos/2529148/pexels-photo-2529148.jpeg?auto=compress&cs=tinysrgb&w=600',
     shorts: 'https://images.pexels.com/photos/8180657/pexels-photo-8180657.jpeg?auto=compress&cs=tinysrgb&w=600',
@@ -216,7 +211,6 @@ const StarterKit = () => {
     ]
   };
 
-  // ========== Badminton Kits ==========
   const badmintonKits = {
     beginner: [
       {
@@ -260,7 +254,6 @@ const StarterKit = () => {
     ]
   };
 
-  // ========== Basketball Kits ==========
   const basketballKits = {
     beginner: [
       {
@@ -304,7 +297,6 @@ const StarterKit = () => {
     ]
   };
 
-  // ========== Gym Kits ==========
   const gymKits = {
     beginner: [
       {
@@ -349,7 +341,6 @@ const StarterKit = () => {
     ]
   };
 
-  // ========== Running Kits ==========
   const runningKits = {
     beginner: [
       {
@@ -442,25 +433,36 @@ const StarterKit = () => {
     };
 
     try {
-      const response = await fetch(`${BASE_URL}/api/starter-kit/save`, {
+      console.log('📤 Saving kit to:', `${API_URL}/api/starter-kit/save`);
+      console.log('📦 Kit data:', kitData);
+      
+      const response = await fetch(`${API_URL}/api/starter-kit/save`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(kitData)
       });
       
+      console.log('📡 Response status:', response.status);
+      
       const data = await response.json();
+      console.log('📥 Response data:', data);
+      
       if (data.success) {
         console.log('✅ Kit saved to database:', data.kit);
         toast.success('Kit saved to your account!');
         return true;
+      } else {
+        console.error('❌ Backend error:', data.message);
+        toast.error(data.message || 'Failed to save kit');
+        return false;
       }
     } catch (error) {
-      console.error('Error saving kit:', error);
-      toast.error('Failed to save kit');
+      console.error('❌ Error saving kit:', error);
+      toast.error('Failed to save kit. Please try again.');
+      return false;
     } finally {
       setSaving(false);
     }
-    return false;
   };
 
   useEffect(() => {
@@ -539,7 +541,6 @@ const StarterKit = () => {
       </Stepper>
 
       <Paper sx={{ p: 2, borderRadius: 2 }}>
-        {/* Step 1: Select Sport */}
         {activeStep === 0 && (
           <Box>
             <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
@@ -567,7 +568,6 @@ const StarterKit = () => {
           </Box>
         )}
 
-        {/* Step 2: Skill Level */}
         {activeStep === 1 && (
           <Box>
             <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
@@ -598,7 +598,6 @@ const StarterKit = () => {
           </Box>
         )}
 
-        {/* Step 3: Budget */}
         {activeStep === 2 && (
           <Box>
             <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
@@ -624,7 +623,6 @@ const StarterKit = () => {
           </Box>
         )}
 
-        {/* Step 4: Choose Kit */}
         {activeStep === 3 && selectedSport && (
           <Box>
             <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
@@ -674,7 +672,6 @@ const StarterKit = () => {
           </Box>
         )}
 
-        {/* Step 5: Review */}
         {activeStep === 4 && (
           <Box>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
@@ -736,7 +733,6 @@ const StarterKit = () => {
           </Box>
         )}
 
-        {/* Navigation */}
         <Box sx={{ display: 'flex', gap: 1, mt: 3 }}>
           <Button
             fullWidth

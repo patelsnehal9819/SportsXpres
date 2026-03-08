@@ -1,0 +1,6 @@
+{
+  "appId": "com.sportsxpress.app",
+  "appName": "SportsXpress",
+  "webDir": "sportsxpress-frontend/build",
+  "bundledWebRuntime": false
+}

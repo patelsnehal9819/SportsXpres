@@ -21,10 +21,10 @@ import {
 import { useParams, useNavigate, Link as RouterLink } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { productImages, DEFAULT_IMAGE } from '../utils/productImages';
+import { API_URL } from '../config';
 import toast from 'react-hot-toast';
 import '../App.css';
 
-// Format price in Indian Rupees
 const formatPrice = (price) => {
   return `₹${price?.toLocaleString('en-IN') || 0}`;
 };
@@ -38,7 +38,6 @@ const sportNames = {
   'running': 'Running'
 };
 
-// COMPLETE product mapping by sport - based on your productImages
 const sportProducts = {
   'cricket': [
     'SG Abdomen Guard',
@@ -232,8 +231,6 @@ const SportCategory = () => {
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  
-  const BASE_URL = 'https://solid-fishstick-7v74445764vj3pjgx-5000.app.github.dev';
 
   useEffect(() => {
     if (category) {
@@ -248,7 +245,7 @@ const SportCategory = () => {
     try {
       console.log(`🔍 Fetching all products for ${category} category...`);
       
-      const response = await fetch(`${BASE_URL}/api/products`);
+      const response = await fetch(`${API_URL}/api/products`);
       console.log('📡 Response status:', response.status);
       
       if (!response.ok) {
@@ -258,7 +255,6 @@ const SportCategory = () => {
       const data = await response.json();
       console.log('📦 API Response:', data);
       
-      // Handle different API response structures
       let productsArray = [];
       
       if (Array.isArray(data)) {
@@ -282,11 +278,9 @@ const SportCategory = () => {
         return;
       }
       
-      // Get the list of products for this specific sport
       const allowedProducts = sportProducts[category] || [];
       console.log(`📋 Allowed products for ${category}:`, allowedProducts);
       
-      // Filter products based on the strict list
       const filtered = productsArray.filter(product => {
         const productName = product.name || '';
         return allowedProducts.includes(productName);
@@ -302,7 +296,6 @@ const SportCategory = () => {
         return;
       }
       
-      // Map products with images from shared productImages object
       const mappedProducts = filtered.map(product => {
         const productImage = productImages[product.name] || 
                             product.image || 
@@ -377,7 +370,6 @@ const SportCategory = () => {
 
   return (
     <Container maxWidth="xl" sx={{ py: 4, bgcolor: '#f1f3f6', minHeight: '100vh' }}>
-      {/* Breadcrumb */}
       <Breadcrumbs sx={{ mb: 3 }}>
         <Link component={RouterLink} to="/" underline="hover" color="inherit">
           <Home sx={{ mr: 0.5, fontSize: 18 }} />
@@ -389,7 +381,6 @@ const SportCategory = () => {
         <Typography color="text.primary">{sportNames[category] || category}</Typography>
       </Breadcrumbs>
 
-      {/* Header */}
       <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Typography variant="h4" fontWeight="bold">
           {sportNames[category] || category} Equipment
@@ -401,7 +392,6 @@ const SportCategory = () => {
         />
       </Box>
 
-      {/* Products Grid */}
       {filteredProducts.length === 0 ? (
         <Box sx={{ textAlign: 'center', py: 8 }}>
           <Typography variant="h6" gutterBottom>
@@ -438,7 +428,6 @@ const SportCategory = () => {
                   }}
                   onClick={() => navigate(`/products/${product._id || product.id}`)}
                 >
-                  {/* Discount Badge */}
                   {discount > 0 && (
                     <Chip 
                       label={`${discount}% OFF`} 
@@ -455,7 +444,6 @@ const SportCategory = () => {
                     />
                   )}
 
-                  {/* Product Image */}
                   <Box
                     sx={{
                       height: 180,
@@ -478,7 +466,6 @@ const SportCategory = () => {
                       {product.name}
                     </Typography>
                     
-                    {/* Price Section */}
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flexWrap: 'wrap', mt: 0.5 }}>
                       {discount > 0 && (
                         <>
@@ -495,7 +482,6 @@ const SportCategory = () => {
                       </Typography>
                     </Box>
 
-                    {/* Rating */}
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5 }}>
                       <Rating value={product.rating || 4} size="small" readOnly />
                       <Chip 
@@ -505,7 +491,6 @@ const SportCategory = () => {
                       />
                     </Box>
 
-                    {/* Free Shipping */}
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5 }}>
                       <LocalShipping sx={{ fontSize: 14, color: '#00a650' }} />
                       <Typography variant="caption" sx={{ color: '#00a650' }}>Free Delivery</Typography>

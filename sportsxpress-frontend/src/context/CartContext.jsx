@@ -1,4 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
+import { API_URL } from '../config';
 import toast from 'react-hot-toast';
 
 const CartContext = createContext();
@@ -6,11 +7,7 @@ export const useCart = () => useContext(CartContext);
 
 export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState([]);
-  
-  // ✅ FIXED: Use the same BASE_URL as your other files
-  const BASE_URL = 'https://solid-fishstick-7v74445764vj3pjgx-5000.app.github.dev';
 
-  // Helper function to get current user
   const getCurrentUser = () => {
     try {
       const userStr = localStorage.getItem('user');
@@ -21,7 +18,6 @@ export const CartProvider = ({ children }) => {
     }
   };
 
-  // Load cart when component mounts and when user changes
   useEffect(() => {
     const user = getCurrentUser();
     if (user?._id) {
@@ -32,7 +28,6 @@ export const CartProvider = ({ children }) => {
       setCartItems([]);
     }
 
-    // Listen for storage changes (login/logout in other tabs)
     const handleStorageChange = () => {
       const updatedUser = getCurrentUser();
       if (updatedUser?._id) {
@@ -49,9 +44,9 @@ export const CartProvider = ({ children }) => {
   const loadCart = async (userId) => {
     try {
       console.log('🛒 Loading cart for user:', userId);
-      console.log('📡 Fetching from:', `${BASE_URL}/api/cart/${userId}`);
+      console.log('📡 Fetching from:', `${API_URL}/api/cart/${userId}`);
       
-      const res = await fetch(`${BASE_URL}/api/cart/${userId}`);
+      const res = await fetch(`${API_URL}/api/cart/${userId}`);
       
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
@@ -82,7 +77,6 @@ export const CartProvider = ({ children }) => {
     }
   };
 
-  // ========== FIXED: addToCart with correct BASE_URL ==========
   const addToCart = async (product, quantity = 1) => {
     const user = getCurrentUser();
     
@@ -95,7 +89,6 @@ export const CartProvider = ({ children }) => {
     console.log('🛍️ Adding to cart - User:', user._id);
     console.log('📦 Product:', product);
 
-    // Ensure product has all required fields
     const cartItem = {
       userId: user._id,
       productId: product._id || product.id,
@@ -108,10 +101,10 @@ export const CartProvider = ({ children }) => {
     };
 
     console.log('📤 Sending to backend:', cartItem);
-    console.log('📡 Posting to:', `${BASE_URL}/api/cart/add`);
+    console.log('📡 Posting to:', `${API_URL}/api/cart/add`);
 
     try {
-      const response = await fetch(`${BASE_URL}/api/cart/add`, {
+      const response = await fetch(`${API_URL}/api/cart/add`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -153,7 +146,7 @@ export const CartProvider = ({ children }) => {
 
     try {
       console.log('🗑️ Removing from cart:', productId);
-      const response = await fetch(`${BASE_URL}/api/cart/remove`, {
+      const response = await fetch(`${API_URL}/api/cart/remove`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId: user._id, productId })
@@ -183,7 +176,7 @@ export const CartProvider = ({ children }) => {
 
     try {
       console.log('🔄 Updating quantity:', { productId, quantity });
-      const response = await fetch(`${BASE_URL}/api/cart/update`, {
+      const response = await fetch(`${API_URL}/api/cart/update`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId: user._id, productId, quantity })
@@ -206,7 +199,7 @@ export const CartProvider = ({ children }) => {
 
     try {
       console.log('🗑️ Clearing cart for user:', user._id);
-      const response = await fetch(`${BASE_URL}/api/cart/clear/${user._id}`, {
+      const response = await fetch(`${API_URL}/api/cart/clear/${user._id}`, {
         method: 'DELETE'
       });
       
